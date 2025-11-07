@@ -7,26 +7,6 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="/_sdk/data_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  :root{--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
-  html{scroll-behavior:smooth;scroll-padding-top:88px;-webkit-text-size-adjust:100%}
-  body{padding-bottom:max(16px,var(--safe-bottom))}
-  .min-svh{min-height:100svh}
-  img{height:auto;max-width:100%}
-  input,select,textarea{font-size:16px}
-  *{-webkit-tap-highlight-color:transparent}
-  .scroll-snap-x{scroll-snap-type:x mandatory}
-  .snap-center{scroll-snap-align:center}
-  button,a{touch-action:manipulation}
-  :focus-visible{outline:3px solid rgba(236,43,132,.55);outline-offset:2px}
-  .section-anchor{scroll-margin-top:88px}
-  .slideshow-container{aspect-ratio:16/9;height:auto}
-  @supports not (aspect-ratio:1/1){
-    .slideshow-container{position:relative;padding-top:56.25%}
-    .slideshow-container>.slide{position:absolute;inset:0}
-  }
-</style>
-
   <style>
         body {
             box-sizing: border-box;
@@ -169,11 +149,10 @@
     </div>
    </div>
   </nav><!-- Hero Section -->
-  <section class="gradient-bg text-white section-padding min-svh">
-
+  <section class="gradient-bg text-white section-padding">
    <div class="max-w-6xl mx-auto"><!-- Slideshow -->
     <div class="relative mb-12 rounded-3xl overflow-hidden shadow-2xl">
-     <div class="slideshow-container relative md:h-[500px]"><!-- Slide 1 -->
+     <div class="slideshow-container relative h-96 md:h-[500px]"><!-- Slide 1 -->
       <div class="slide active bg-gradient-to-br from-blue-600 to-purple-700 h-full flex items-center justify-center text-white relative">
        <div class="absolute inset-0 bg-black/20"></div>
        <div class="text-center z-10">
@@ -673,24 +652,6 @@
          </div>
          <div class="mb-6"><label class="block text-sm font-bold mb-2" for="event-location">المدينة/الموقع *</label> <input type="text" id="event-location" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all" placeholder="مسقط، عُمان">
          </div>
-<div class="grid md:grid-cols-3 gap-6 mb-6">
-  <div>
-    <label class="block text-sm font-bold mb-2" for="event-date">تاريخ الفعالية *</label>
-    <input type="date" id="event-date" required
-      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all">
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-2" for="event-start">وقت البداية *</label>
-    <input type="time" id="event-start" required
-      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all">
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-2" for="event-end">وقت الانتهاء *</label>
-    <input type="time" id="event-end" required
-      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all">
-  </div>
-</div>
-
          <div class="mb-6"><label class="block text-sm font-bold mb-2">داخل مسقط؟ *</label>
           <div class="flex gap-4"><label class="flex items-center"> <input type="radio" name="inside-muscat" value="yes" id="inside-muscat-yes" class="ml-2" onchange="toggleDistanceField()"> <span>نعم</span> </label> <label class="flex items-center"> <input type="radio" name="inside-muscat" value="no" id="inside-muscat-no" class="ml-2" onchange="toggleDistanceField()"> <span>لا</span> </label>
           </div>
@@ -1017,1019 +978,2150 @@
     <p class="text-sm text-gray-500">© 2024 EventPlus. جميع الحقوق محفوظة.</p>
    </div>
   </footer>
- <script>
-/* ========== EventPlus – App JS (نسخة موحّدة نهائية) ========== */
-
-/* 0) ثوابت الإرسال */
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mdkpqkgy';
-const COMPANY_EMAIL      = 'info@momentconnect.com';
-
-/* 1) إعدادات افتراضية للثيم/الكونتنت */
-const defaultConfig = window.defaultConfig || {
-  hero_title: "EventPlus — حلول العرض والتفاعل للهولوجرام والشاشات الذكية",
-  hero_subtitle: "نحوّل التقنية إلى تجربة إنسانية تُقنع جمهوركم وتُنتج بيانات قابلة للقرار",
-  whatsapp_number: "+968 98567383",
-  email_address: "info@momentconnect.com",
-  background_color: "#41296D",
-  surface_color: "#F5F5F7",
-  text_color: "#2C2C2C",
-  primary_action_color: "#EC2B84",
-  secondary_action_color: "#00B9A8"
-};
-
-let bookings = [];
-let selectedDevices = [];
-let selectedAddons = [];
-let currentSlideIndex = 0;
-let specialDiscountType = null;
-let specialDiscountActive = false;
-
-/* 2) Helpers UI */
-function scrollToSection(id){ document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
-function showToast(msg){
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.innerHTML = `<div class="flex items-center gap-3"><span class="text-2xl">✓</span><span class="font-semibold">${msg}</span></div>`;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(), 3000);
-}
-function showSuccessMessage(message){
-  const d = document.createElement('div');
-  d.className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-  d.innerHTML = `
-    <div class="bg-white rounded-3xl p-8 max-w-md mx-4 text-center">
-      <div class="text-6xl mb-4">✅</div>
-      <h3 class="text-2xl font-bold mb-4 text-green-600">نجح الإرسال!</h3>
-      <p class="text-gray-600 mb-6">${message}</p>
-      <p class="text-sm text-gray-500 mb-6">سنراجع طلبك ونعود إليك بالتأكيد وخيارات الدفع خلال ساعات العمل.</p>
-      <button onclick="this.closest('.fixed').remove()" class="bg-purple-600 text-white px-6 py-3 rounded-full font-bold hover:bg-purple-700">حسناً</button>
-    </div>`;
-  document.body.appendChild(d);
-}
-
-/* 3) سلايدر الهيرو */
-function showSlide(index){
-  const slides = document.querySelectorAll('.slide');
-  const dots   = document.querySelectorAll('.dot');
-  if (!slides.length) return;
-  slides.forEach(s=>{ s.classList.remove('active'); s.style.display='none'; s.style.opacity='0'; });
-  dots.forEach(d=>d.classList.remove('active'));
-
-  if (index >= slides.length) currentSlideIndex = 0;
-  else if (index < 0) currentSlideIndex = slides.length-1;
-
-  const s = slides[currentSlideIndex];
-  s.style.display='flex';
-  requestAnimationFrame(()=>{ s.classList.add('active'); s.style.opacity='1'; });
-  dots[currentSlideIndex]?.classList.add('active');
-}
-function changeSlide(dir){ currentSlideIndex+=dir; showSlide(currentSlideIndex); }
-function currentSlideTo(i){ currentSlideIndex=i-1; showSlide(currentSlideIndex); }
-function startAutoSlideshow(){ setInterval(()=>{ currentSlideIndex++; showSlide(currentSlideIndex); }, 5000); }
-
-/* 4) تسعير ذكي للفترات الطويلة */
-function longTermFactor(days){
-  if (days<=3)  return 1.00; // 1-3 بدون خصم
-  if (days<=7)  return 0.85; // 4-7 خصم 15%
-  if (days<=14) return 0.50; // 8-14 خصم 50%
-  if (days<=21) return 0.40; // 15-21 خصم 60%
-  return 0.40;               // 22+ نفس 0.40 مع سقف شهري
-}
-function calculateSmartPrice(dailyRate, basePrice, days, qty=1){
-  let subtotal = dailyRate * days * longTermFactor(days);
-  if (days >= 22){
-    const monthlyCap = basePrice * 0.45; // سقف شهري 45% من قيمة الأصل
-    subtotal = Math.min(subtotal, monthlyCap);
-  }
-  subtotal = Math.min(subtotal, basePrice); // لا نتجاوز قيمة الأصل
-  return subtotal * qty;
-}
-function calculateDeliveryFee(totalQty){
-  if (totalQty===0) return 0;
-  if (totalQty<=2)  return 15;
-  if (totalQty===3) return 20;
-  if (totalQty===4) return 30;
-  if (totalQty===5) return 40;
-  if (totalQty>=6)  return 60;
-  return 15;
-}
-
-/* 5) اختيار الأجهزة والإضافات */
-function updateDeviceSelection(){
-  selectedDevices = [];
-  document.querySelectorAll('.device-checkbox:checked').forEach(cb=>{
-    const name = cb.dataset.device;
-    const dailyRate = parseFloat(cb.dataset.price||'0');
-    const basePrice = parseFloat(cb.dataset.basePrice||'0');
-    const qEl   = document.querySelector(`.device-quantity[data-device="${name}"]`);
-    const dEl   = document.querySelector(`.device-days[data-device="${name}"]`);
-    const qty   = Math.max(0, parseInt(qEl?.value||'0',10));
-    const days  = Math.max(1, parseInt(dEl?.value||'1',10));
-    if (qty>0){
-      const total = calculateSmartPrice(dailyRate, basePrice, days, qty);
-      selectedDevices.push({
-        name, dailyRate, basePrice, quantity:qty, days,
-        factor: longTermFactor(days), isLongTerm: days>=4, total
-      });
-    }
-  });
-  updateBookingSummary();
-}
-function updateAddonSelection(){
-  selectedAddons = [];
-  document.querySelectorAll('.addon-checkbox:checked').forEach(cb=>{
-    selectedAddons.push({name: cb.dataset.addon, price: 0});
-  });
-  updateBookingSummary();
-}
-
-/* 6) الحساب والملخّص */
-function calculateSmartPricing(){
-  const devicesTotal = selectedDevices.reduce((s,d)=>s+d.total,0);
-  const subtotal = devicesTotal;
-  const discounts = [];
-  const suggestions = [];
-  const hasLongTerm = selectedDevices.some(d=>d.isLongTerm);
-  const longTermPerks = hasLongTerm ? [
-    'صيانة وقائية كل 10 أيام + زيارة طوارئ مجانية',
-    'تحديث المحتوى حتى 3 مرات خلال فترة الإيجار',
-    'دعم فني واتساب/اتصال أولوية',
-    'قفل نظام العرض (Kiosk/Lockdown)',
-    'بديل مؤقت عند العطل غير المتعمد (حسب التوافر)'
-  ] : [];
-
-  const totalQty = selectedDevices.reduce((s,d)=>s+d.quantity,0);
-
-  // خصم تعدد الأجهزة
-  let multiDeviceDiscount = 0;
-  if (totalQty>=2 && devicesTotal>0){
-    multiDeviceDiscount = devicesTotal*0.10;
-    discounts.push({name:'خصم تعدد الأجهزة (10%)', amount:multiDeviceDiscount});
-  }
-
-  // خصم تعدد الإضافات
-  let addonsDiscount = 0;
-  if (selectedAddons.length>=3 && devicesTotal>0){
-    addonsDiscount = devicesTotal*0.15;
-    discounts.push({name:'خصم الإضافات المتعددة (15%)', amount:addonsDiscount});
-  }else if (selectedAddons.length>=2 && devicesTotal>0){
-    addonsDiscount = devicesTotal*0.08;
-    discounts.push({name:'خصم الإضافات المتعددة (8%)', amount:addonsDiscount});
-  }
-
-  // اقتراح/خصم صفحة تفاعلية للشاشات الذكية
-  const hasDigitalBoard = selectedDevices.some(d=>d.name.includes('هوية تك – شاشة الهوية الذكية'));
-  const hasBatteryKiosk = selectedDevices.some(d=>d.name.includes('هوية تك – الشاشة المتنقلة الذكية'));
-  const hasInteractiveHTML = selectedAddons.some(a=>a.name.includes('صفحة تفاعلية HTML'));
-
-  let interactivePageDiscount = 0;
-  if ((hasDigitalBoard||hasBatteryKiosk) && !hasInteractiveHTML){
-    suggestions.push({
-      type:'interactive_page',
-      title:'💡 اقتراح ذكي: صفحة تفاعلية',
-      message:'أضف صفحة تفاعلية HTML واحصل على خصم إضافي 5% على المجموع!'
-    });
-  }else if ((hasDigitalBoard||hasBatteryKiosk) && hasInteractiveHTML && devicesTotal>0){
-    interactivePageDiscount = devicesTotal*0.05;
-    discounts.push({name:'خصم الصفحة التفاعلية للشاشات الذكية (5%)', amount:interactivePageDiscount});
-  }
-
-  const totalDiscount = multiDeviceDiscount + addonsDiscount + interactivePageDiscount;
-  const finalSubtotal = Math.max(0, subtotal - totalDiscount);
-
-  // توصيل ومسافة إضافية
-  const deliveryFee = calculateDeliveryFee(totalQty);
-  const distanceKm = parseInt(document.getElementById('distance-km')?.value||'0',10);
-  const extraKm = Math.max(0, distanceKm - 30);
-  const extraDistanceFee = extraKm * 0.30; // أو 0.25/0.35 حسب السياسة
- // عدّلها إلى 0.25–0.35 إذا حبيت
-
-  return {
-    originalSubtotal: subtotal,
-    discounts, suggestions, longTermPerks,
-    totalDiscount, finalSubtotal,
-    deliveryFee, extraDistanceFee,
-    totalQuantity: totalQty, hasLongTerm
-  };
-}
-function updateBookingSummary(){
-  const box = document.getElementById('booking-summary');
-  if (!box) return;
-
-  if (!selectedDevices.length && !selectedAddons.length){
-    box.innerHTML = `
-      <div class="text-center text-gray-400 py-8">
-        <div class="text-4xl mb-2">📱</div>
-        <p>اختر الأجهزة أو الإضافات لرؤية الملخص</p>
-      </div>`;
-    document.getElementById('sidebar-total').textContent = '0 OMR';
-    return;
-  }
-
-  const p = calculateSmartPricing();
-  let html = '';
-
-  if (p.hasLongTerm){
-    html += `
-      <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-3 mb-4">
-        <div class="flex items-center gap-2 mb-1"><span class="text-lg">🎉</span><span class="font-bold text-sm">تم تفعيل باقة الفترات الطويلة</span></div>
-        <div class="text-xs opacity-90">تمت إضافة مزايا مجانية لطلبك!</div>
-      </div>`;
-  }
-
-  if (selectedDevices.length){
-    html += `<div class="mb-4"><h4 class="font-bold text-purple-900 mb-2">الأجهزة:</h4>`;
-    selectedDevices.forEach(d=>{
-      const original = d.dailyRate*d.days*d.quantity;
-      const save = Math.max(0, original - d.total);
-      html += `
-        <div class="border-b border-gray-100 pb-2 mb-2 last:border-b-0">
-          <div class="flex justify-between items-start text-sm">
-            <span class="font-medium">${d.name}</span>
-            <span class="font-semibold">${d.total.toFixed(2)} OMR</span>
-          </div>
-          <div class="text-xs text-gray-500 mt-1">
-            ${d.quantity} جهاز × ${d.days} أيام
-            ${d.isLongTerm?`<span class="text-purple-600 font-semibold"> (خصم ${Math.round((1-d.factor)*100)}%)</span>`:''}
-          </div>
-          ${save>0?`<div class="text-xs text-green-600 font-semibold">وفرت ${save.toFixed(2)} OMR</div>`:''}
-        </div>`;
-    });
-    html += `</div>`;
-  }
-
-  if (p.longTermPerks.length){
-    html += `
-      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
-        <div class="text-sm font-bold text-purple-800 mb-2">🎁 Long-Term Perks (مجاناً):</div>
-        <div class="text-xs text-purple-700 space-y-1">
-          ${p.longTermPerks.map(x=>`<div>• ${x}</div>`).join('')}
-        </div>
-      </div>`;
-  }
-
-  if (selectedDevices.length){
-    html += `
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-        <div class="text-sm font-bold text-blue-800 mb-2">🚚 رسوم التوصيل:</div>
-        <div class="text-xs text-blue-700">
-          <div class="grid grid-cols-2 gap-1 mb-2">
-            <div>حتى 2 شاشة: 15 OMR</div><div>3 شاشات: 20 OMR</div>
-            <div>4 شاشات: 30 OMR</div><div>5 شاشات: 40 OMR</div>
-            <div>6+ شاشات: 60 OMR</div>
-          </div>
-          <div class="font-semibold text-blue-800">طلبك الحالي (${p.totalQuantity} شاشة): ${p.deliveryFee} OMR</div>
-          ${p.extraDistanceFee>0?`<div class="font-semibold text-blue-800">رسوم المسافة الإضافية: ${p.extraDistanceFee.toFixed(2)} OMR</div>`:''}
-        </div>
-      </div>`;
-  }
-
-  if (selectedAddons.length){
-    html += `<div class="mb-4"><h4 class="font-bold text-purple-900 mb-2">الإضافات:</h4>`;
-    selectedAddons.forEach(a=>{
-      html += `<div class="flex justify-between items-center text-sm mb-1">
-        <span>${a.name}</span><span class="font-semibold text-blue-600">سعر حسب الطلب</span></div>`;
-    });
-    html += `</div>
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-        <div class="text-sm font-bold text-blue-800 mb-1">💡 ملاحظة مهمة</div>
-        <div class="text-xs text-blue-700">الإضافات تُسعّر حسب الطلب، اكتب تفاصيلك في الملاحظات لنرسل عرض مخصص.</div>
-      </div>`;
-  }
-
-  if (p.suggestions.length){
-    html += `<div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">` +
-      p.suggestions.map(s=>`
-        <div class="mb-3 last:mb-0">
-          <div class="text-sm font-bold text-blue-800 mb-1">${s.title}</div>
-          <div class="text-xs text-blue-700 mb-2">${s.message}</div>
-          <button class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-700" onclick="applySuggestion('${s.type}')">تطبيق الاقتراح</button>
-        </div>`).join('') + `</div>`;
-  }
-
-  if (p.discounts.length){
-    html += `<div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-      <div class="text-sm font-bold text-green-800 mb-2">🎉 خصومات إضافية:</div>
-      ${p.discounts.map(d=>`<div class="flex justify-between text-xs text-green-700"><span>${d.name}</span><span>-${d.amount.toFixed(2)} OMR</span></div>`).join('')}
-      <div class="border-t border-green-300 mt-2 pt-2 flex justify-between text-sm font-bold text-green-800">
-        <span>إجمالي الخصم الإضافي:</span><span>-${p.totalDiscount.toFixed(2)} OMR</span>
-      </div>
-    </div>`;
-  }
-
-  const finalTotal = p.finalSubtotal + p.deliveryFee + p.extraDistanceFee;
-  document.getElementById('sidebar-total').textContent =
-    selectedDevices.length ? `${finalTotal.toFixed(2)} OMR${selectedAddons.length?' + إضافات':''}` :
-    (selectedAddons.length ? 'سعر حسب الطلب' : '0 OMR');
-
-  box.innerHTML = html;
-}
-
-/* 7) اقتراحات سريعة */
-function applySuggestion(type){
-  if (type==='interactive_page'){
-    const cb = document.querySelector('.addon-checkbox[data-addon="صفحة تفاعلية HTML"]');
-    if (cb && !cb.checked){ cb.checked = true; updateAddonSelection(); showToast('✅ تم إضافة الصفحة التفاعلية مع خصم 5%!'); }
-  }
-}
-
-/* 8) تحكّم حقول منطقية */
-function toggleDistanceField(){
-  const isNo = document.getElementById('inside-muscat-no')?.checked;
-  document.getElementById('distance-field')?.classList.toggle('hidden', !isNo);
-}
-function toggleBatteryRecommendation(){
-  const isNo = document.getElementById('electricity-no')?.checked;
-  document.getElementById('battery-recommendation')?.classList.toggle('hidden', !isNo);
-}
-
-/* 9) توليد رسالة واتساب */
-function generateWhatsAppMessage(){
-  const name = document.getElementById('customer-name').value || 'عميل';
-  const phone = document.getElementById('customer-phone').value || '';
-  let msg = `مرحبًا، أنا ${name}${phone?` - ${phone}`:''}\n\n`;
-
-  if (selectedDevices.length){
-    msg += "📱 الأجهزة:\n";
-    selectedDevices.forEach(d=>{ msg += `• ${d.name} - الكمية: ${d.quantity} - المدة: ${d.days} أيام\n`; });
-    msg += "\n";
-  }
-
-  if (selectedAddons.length){
-    msg += `${selectedDevices.length?"🎁 الإضافات المطلوبة":"🎁 الخدمات المطلوبة"} (سعر حسب الطلب):\n`;
-    selectedAddons.forEach(a=> msg += `• ${a.name}\n`);
-    msg += "\n";
-  }
-
-  if (selectedDevices.length){
-    const type = document.getElementById('event-type').value;
-    const loc  = document.getElementById('event-location').value;
-    const insideMuscat = document.querySelector('input[name="inside-muscat"]:checked')?.value;
-    const electricity  = document.querySelector('input[name="electricity"]:checked')?.value;
-
-    msg += "📋 تفاصيل الفعالية:\n";
-    if (type) msg += `• النوع: ${type}\n`;
-    if (loc)  msg += `• الموقع: ${loc}\n`;
-    if (insideMuscat) msg += `• داخل مسقط: ${insideMuscat==='yes'?'نعم':'لا'}\n`;
-    if (electricity)  msg += `• الكهرباء: ${electricity==='yes'?'متوفرة':'غير متوفرة'}\n`;
-
-    const p = calculateSmartPricing();
-    const finalTotal = p.finalSubtotal + p.deliveryFee + p.extraDistanceFee;
-
-    msg += `\n💰 التسعير:\n`;
-    if (p.discounts.length){
-      msg += `• المجموع قبل الخصم: ${p.originalSubtotal.toFixed(2)} OMR\n`;
-      msg += `• إجمالي الخصم: -${p.totalDiscount.toFixed(2)} OMR\n`;
-    }
-    msg += `• الإجمالي للأجهزة: ${p.finalSubtotal.toFixed(2)} OMR\n`;
-    if (p.deliveryFee>0)       msg += `• رسوم التوصيل (${p.totalQuantity} شاشة): ${p.deliveryFee} OMR\n`;
-    if (p.extraDistanceFee>0)  msg += `• رسوم المسافة الإضافية: ${p.extraDistanceFee.toFixed(2)} OMR\n`;
-    msg += `• المجموع النهائي: ${finalTotal.toFixed(2)} OMR\n`;
-    if (selectedAddons.length) msg += `• الإضافات: سعر حسب الطلب\n`;
-    if (specialDiscountActive){
-      const reason = (document.getElementById('discount-reason')?.value||'').trim();
-      const kind = specialDiscountType==='student'?'طالب جامعي':'جهة خيرية/غير ربحية';
-      msg += `\n🎓💝 مطالبة بخصم خاص (${kind})${reason?`:\n• السبب: ${reason}\n`:''}`;
-    }
-    msg += `\nهل الأجهزة متاحة في هذا التاريخ؟`;
-  }else{
-    const notes = document.getElementById('notes').value;
-    if (notes) msg += `📝 تفاصيل الطلب:\n${notes}\n\n`;
-    msg += "يرجى تزويدي بعرض سعر مخصص لهذه الخدمات 💰";
-  }
-  return encodeURIComponent(msg);
-}
-
-/* 10) تحقّق قبل الإرسال */
-function validateForm(){
-  const need = (id)=>document.getElementById(id)?.value.trim();
-  if (!need('customer-name')){ showToast('⚠️ يرجى كتابة الاسم'); return false; }
-  if (!need('customer-phone')){ showToast('⚠️ يرجى كتابة رقم الجوال'); return false; }
-  if (!selectedDevices.length && !selectedAddons.length){
-    showToast('⚠️ اختر جهازًا واحدًا على الأقل أو إضافة واحدة'); return false;
-  }
-  if (selectedDevices.length){
-    if (!need('event-type')){ showToast('⚠️ اختر نوع الفعالية'); return false; }
-    if (!need('event-location')){ showToast('⚠️ اكتب المدينة/الموقع'); return false; }
-    if (!document.querySelector('input[name="inside-muscat"]:checked')){ showToast('⚠️ حدد داخل مسقط أو لا'); return false; }
-    if (!document.querySelector('input[name="electricity"]:checked')){ showToast('⚠️ حدد توفّر الكهرباء'); return false; }
-  }
-  return true;
-}
-
-/* 11) حفظ محلي/خارجي */
-async function saveBookingToDatabase(pricing){
-  if (!window.dataSdk) return;
-  if (bookings.length>=999){ showToast('⚠️ الحد الأقصى للحجوزات 999'); return; }
-
-  const payload = {
-    id: `booking_${Date.now()}`,
-    customer_name: document.getElementById('customer-name').value,
-    customer_email: document.getElementById('customer-email').value || '',
-    customer_phone: document.getElementById('customer-phone').value,
-    event_type: document.getElementById('event-type').value || '',
-    event_location: document.getElementById('event-location').value || '',
-    inside_muscat: document.querySelector('input[name="inside-muscat"]:checked')?.value || '',
-    electricity_available: document.querySelector('input[name="electricity"]:checked')?.value || '',
-    distance_km: document.getElementById('distance-km')?.value || '0',
-    selected_devices: JSON.stringify(selectedDevices),
-    selected_addons: JSON.stringify(selectedAddons),
-    original_price: pricing.originalSubtotal.toFixed(2),
-    total_discount: pricing.totalDiscount.toFixed(2),
-    final_price: (pricing.finalSubtotal + pricing.deliveryFee + pricing.extraDistanceFee).toFixed(2),
-    delivery_fee: String(pricing.deliveryFee),
-    extra_distance_fee: pricing.extraDistanceFee.toFixed(2),
-    total_quantity: String(pricing.totalQuantity),
-    notes: document.getElementById('notes')?.value || '',
-    special_discount_type: specialDiscountType || '',
-    special_discount_active: String(specialDiscountActive),
-    discount_reason: document.getElementById('discount-reason')?.value || '',
-    created_at: new Date().toISOString(),
-    status: 'مرسل'
-  };
-  let ok = false;
-if (window.dataSdk){
-  const r = await window.dataSdk.create(payload);
-  ok = !!r.isOk;
-}
-if (!ok){ saveLocalBooking(payload); }
-
-}
-
-/* 12) إرسال عبر Formspree + fallback */
-async function submitViaEmail(){
-  if (!validateForm()) return;
-
-  const btn  = document.getElementById('email-submit-btn');
-  const prev = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
-
-  let message = '';
-  try{
-    // تسعير + حفظ
-    const p = calculateSmartPricing();
-    await saveBookingToDatabase(p);
-
-    // تجميع نص الإيميل
-    const name  = document.getElementById('customer-name').value.trim();
-    const phone = document.getElementById('customer-phone').value.trim();
-    const email = (document.getElementById('customer-email').value || '').trim();
-    const type  = document.getElementById('event-type').value || '';
-    const loc   = document.getElementById('event-location').value || '';
-    const insideMuscat = document.querySelector('input[name="inside-muscat"]:checked')?.value || '';
-    const electricity  = document.querySelector('input[name="electricity"]:checked')?.value || '';
-    const distanceKm   = document.getElementById('distance-km')?.value || '0';
-    const notes        = document.getElementById('notes')?.value || '';
-
-    const devicesLines = selectedDevices.length
-      ? selectedDevices.map(d=>`• ${d.name} — ${d.quantity}× — ${d.days} يوم`).join('\n')
-      : '—';
-    const addonsLines = selectedAddons.length
-      ? selectedAddons.map(a=>`• ${a.name}`).join('\n')
-      : '—';
-
-    const finalTotal = (p.finalSubtotal + p.deliveryFee + p.extraDistanceFee).toFixed(2);
-
-    message =
-`[حجز جديد – EventPlus]
-الاسم: ${name}
-الجوال: ${phone}
-البريد: ${email || '—'}
-
-الفعالية:
-• النوع: ${type || '—'}
-• الموقع: ${loc || '—'}
-• داخل مسقط: ${insideMuscat==='yes'?'نعم':insideMuscat==='no'?'لا':'—'}
-• الكهرباء: ${electricity==='yes'?'متوفرة':electricity==='no'?'غير متوفرة':'—'}
-• المسافة: ${distanceKm} كم
-
-الأجهزة:
-${devicesLines}
-
-الإضافات (سعر حسب الطلب):
-${addonsLines}
-
-التسعير:
-• قبل الخصم: ${p.originalSubtotal.toFixed(2)} OMR
-• إجمالي الخصم: -${p.totalDiscount.toFixed(2)} OMR
-• الأجهزة بعد الخصم: ${p.finalSubtotal.toFixed(2)} OMR
-• التوصيل: ${p.deliveryFee} OMR
-${p.extraDistanceFee>0?`• مسافة إضافية: ${p.extraDistanceFee.toFixed(2)} OMR\n`:''}• الإجمالي: ${finalTotal} OMR
-
-ملاحظات:
-${notes || '—'}
-`;
-
-    // إرسال عبر FormData (أفضل توافقًا من JSON)
-    const fd = new FormData();
-    fd.append('email',    email || COMPANY_EMAIL);
-    fd.append('_replyto', email || COMPANY_EMAIL);
-    fd.append('_subject', `حجز جديد – ${name} (${phone})`);
-    fd.append('message',  message);
-    fd.append('name', name);
-    fd.append('phone', phone);
-    fd.append('type', type);
-    fd.append('location', loc);
-    fd.append('inside_muscat', insideMuscat);
-    fd.append('electricity', electricity);
-    fd.append('distance_km', distanceKm);
-    fd.append('selected_devices', JSON.stringify(selectedDevices));
-    fd.append('selected_addons', JSON.stringify(selectedAddons));
-    fd.append('original_price', p.originalSubtotal.toFixed(2));
-    fd.append('total_discount', p.totalDiscount.toFixed(2));
-    fd.append('final_price', finalTotal);
-
-    const res  = await fetch(FORMSPREE_ENDPOINT, { method:'POST', body: fd, headers:{ Accept:'application/json' }});
-    const json = await res.json().catch(()=> ({}));
-
-    if (!res.ok || json.ok !== true) {
-      console.error('Formspree error:', res.status, json);
-      throw new Error('send-failed');
-    }
-
-    showSuccessMessage('تم إرسال طلبك بنجاح عبر الإيميل! 📧');
-    resetForm();
-
-  } catch (err){
-    console.warn('Email failed, fallback mailto', err);
-    // Fallback mailto بكل التفاصيل
-    const subject = encodeURIComponent('حجز جديد – EventPlus');
-    const body    = encodeURIComponent(message || 'تعذّر إنشاء نص الحجز تلقائيًا.');
-    window.location.href = `mailto:${COMPANY_EMAIL}?subject=${subject}&body=${body}`;
-    showToast('ℹ️ فتحنا برنامج الإيميل لديك كحل مؤقت.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = prev;
-  }
-}
-
-/* 13) واتساب */
-async function submitViaWhatsApp(){
-  if (!validateForm()) return;
-  try{
-    const p = calculateSmartPricing();
-    await saveBookingToDatabase(p);
-    const msg = generateWhatsAppMessage();
-    const waNumber = (window.elementSdk?.state?.config?.whatsapp_number || defaultConfig.whatsapp_number || '').replace(/[^0-9]/g,'');
-window.open(`https://wa.me/${waNumber}?text=${msg}`, '_blank');
-
-    showSuccessMessage('تم توجيهك إلى الواتساب! 💬');
-    resetForm();
-  }catch(e){ showToast('❌ تعذّر تجهيز رسالة الواتساب.'); }
-}
-
-/* 14) سجل الحجوزات */
-function updateBookingsCount(){ const el=document.getElementById('bookings-count'); if (el) el.textContent = bookings.length; }
-function toggleBookingHistory(){
-  const box = document.getElementById('booking-history');
-  const btn = document.getElementById('history-toggle-btn');
-  if (!box||!btn) return;
-  if (box.classList.contains('hidden')){
-    box.classList.remove('hidden'); btn.textContent = `إخفاء سجل الحجوزات 📋 (${bookings.length})`;
-    renderBookingHistory();
-  }else{
-    box.classList.add('hidden'); btn.innerHTML = `عرض سجل الحجوزات السابقة 📋 (<span id="bookings-count">${bookings.length}</span>)`;
-  }
-}
-function renderBookingHistory(){
-  const list = document.getElementById('bookings-list');
-  if (!list) return;
-  if (!bookings.length){
-    list.innerHTML = `
-      <div class="text-center text-gray-400 py-8">
-        <div class="text-4xl mb-2">📋</div>
-
-        <p>لا توجد حجوزات سابقة</p>
-        <p class="text-sm mt-2">ستظهر حجوزاتك هنا بعد إرسال أول طلب</p>
-      </div>`;
-    return;
-  }
-  const sorted = [...bookings].sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
-  list.innerHTML = sorted.map(b=>{
-    const created = new Date(b.created_at).toLocaleString('ar-SA',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    let devices='غير محدد', addons='لا توجد إضافات';
-    try{ const arr=JSON.parse(b.selected_devices||'[]'); devices = arr.map(d=>`${d.name} (${d.quantity}×${d.days} أيام)`).join('، ');}catch{}
-    try{ const arr=JSON.parse(b.selected_addons||'[]'); addons = arr.length?arr.map(a=>a.name).join('، '):'لا توجد إضافات'; }catch{}
-    return `
-      <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
-        <div class="flex justify-between items-start mb-3">
-          <div><h4 class="font-bold text-lg text-purple-900">${b.customer_name}</h4><p class="text-sm text-gray-500">${created}</p></div>
-          <div class="text-left"><div class="text-lg font-bold text-purple-600">${b.final_price} OMR</div><span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${b.status}</span></div>
-        </div>
-        <div class="grid md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <p class="text-gray-600 mb-1"><strong>الجوال:</strong> ${b.customer_phone}</p>
-            ${b.customer_email?`<p class="text-gray-600 mb-1"><strong>الإيميل:</strong> ${b.customer_email}</p>`:''}
-            ${b.event_type?`<p class="text-gray-600 mb-1"><strong>نوع الفعالية:</strong> ${b.event_type}</p>`:''}
-            ${b.event_location?`<p class="text-gray-600 mb-1"><strong>الموقع:</strong> ${b.event_location}</p>`:''}
-          </div>
-          <div>
-            <p class="text-gray-600 mb-1"><strong>الأجهزة:</strong> ${devices}</p>
-            <p class="text-gray-600 mb-1"><strong>الإضافات:</strong> ${addons}</p>
-            ${b.total_discount && parseFloat(b.total_discount)>0?`<p class="text-green-600 font-semibold"><strong>خصم:</strong> -${b.total_discount} OMR</p>`:''}
-            ${b.special_discount_active==='true'?`<p class="text-orange-600 font-semibold"><strong>مطالبة خصم:</strong> ${b.special_discount_type==='student'?'🎓 طالب':'💝 خيرية'}</p>`:''}
-          </div>
-        </div>
-        ${b.notes?`<div class="mt-3 p-3 bg-gray-50 rounded-lg"><p class="text-sm text-gray-700"><strong>ملاحظات:</strong> ${b.notes}</p></div>`:''}
-      </div>`;
-  }).join('');
-}
-
-/* 15) دوال دعم الكتالوج/المدخلات المذكورة في HTML */
-function addDeviceToSelection(deviceName, dailyRate, basePrice){
-  const cb   = document.querySelector(`.device-checkbox[data-device="${deviceName}"]`);
-  const qty  = document.querySelector(`.device-quantity[data-device="${deviceName}"]`);
-  const days = document.querySelector(`.device-days[data-device="${deviceName}"]`);
-
-  if (cb){ cb.checked = true; }
-  if (qty){ if (parseInt(qty.value||'0',10) < 1) qty.value = 1; }
-  if (days){ if (parseInt(days.value||'0',10) < 1) days.value = 1; }
-
-  updateDeviceSelection();
-  showToast('✅ تمت إضافة الجهاز إلى الملخّص');
-}
-function handleDeviceCheckboxChange(){ updateDeviceSelection(); }
-function handleQuantityChange(el){
-  const v = Math.max(0, parseInt(el.value||'0',10));
-  el.value = v;
-  updateDeviceSelection();
-}
-function handleDaysChange(el){
-  let d = Math.max(1, parseInt(el.value||'1',10));
-  if (d>30){ d = 30; showToast('ℹ️ لأكثر من 30 يوم: تواصل معنا لعرض خاص'); }
-  el.value = d;
-  updateDeviceSelection();
-}
-
-/* 16) خصومات خاصة */
-function handleSpecialDiscountRequest(e){
-  const student = document.getElementById('student-discount');
-  const charity = document.getElementById('charity-discount');
-  const box = document.getElementById('special-discount-request');
-
-  if (student?.checked && charity?.checked){
-    if (e?.target===student) charity.checked=false; else student.checked=false;
-  }
-
-  if (student?.checked){
-    specialDiscountType='student'; specialDiscountActive=true;
-    box?.classList.remove('hidden');
-    const t=document.getElementById('discount-reason'); if(t) t.placeholder='مثال: طالب في جامعة السلطان قابوس...';
-  }else if (charity?.checked){
-    specialDiscountType='charity'; specialDiscountActive=true;
-    box?.classList.remove('hidden');
-    const t=document.getElementById('discount-reason'); if(t) t.placeholder='مثال: جمعية خيرية مسجلة...';
-  }else{
-    specialDiscountType=null; specialDiscountActive=false;
-    box?.classList.add('hidden');
-    const t=document.getElementById('discount-reason'); if (t) t.value='';
-  }
-  updateBookingSummary();
-}
-
-/* 17) Reset */
-function resetForm(){
-  document.getElementById('booking-form')?.reset();
-  selectedDevices = []; selectedAddons = [];
-  specialDiscountType = null; specialDiscountActive = false;
-  document.getElementById('distance-field')?.classList.add('hidden');
-  document.getElementById('battery-recommendation')?.classList.add('hidden');
-  document.querySelectorAll('.device-checkbox,.addon-checkbox').forEach(cb=> cb.checked=false);
-  document.querySelectorAll('.device-quantity').forEach(i=> i.value=0);
-  document.querySelectorAll('.device-days').forEach(i=> i.value=1);
-  updateBookingSummary();
-}
-
-/* 18) SDK + تهيئة وروابط */
-const dataHandler = {
-  onDataChanged(data){ bookings = data; updateBookingsCount(); renderBookingHistory(); }
-};
-
-function loadLocalBookings(){
-  try{ bookings = JSON.parse(localStorage.getItem('eventplus_bookings')||'[]'); }
-  catch{ bookings = []; }
-}
-function saveLocalBooking(b){
-  try{
-    const list = JSON.parse(localStorage.getItem('eventplus_bookings')||'[]');
-    list.push(b);
-    localStorage.setItem('eventplus_bookings', JSON.stringify(list));
-    bookings = list;
-  }catch{}
-}
-
-async function initializeApp(){
-  /* 0) تحميل سجل الحجوزات المحلي كبداية */
-  try {
-    loadLocalBookings();
-    updateBookingsCount();
-    renderBookingHistory();
-  } catch(e){ console.warn('local bookings init skipped', e); }
-
-  /* 1) dataSdk */
-  try{
-    if (window.dataSdk){
-      const r = await window.dataSdk.init(dataHandler);
-      if (!r.isOk) console.error('Failed to init data SDK');
-    }
-  }catch(e){ console.warn('dataSdk init skipped', e); }
-
-  /* 2) elementSdk (ثيم/محتوى ديناميكي) */
-  try{
-    if (window.elementSdk){
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange: (config)=>{
-          document.getElementById('hero-title').textContent = config.hero_title || defaultConfig.hero_title;
-          document.getElementById('hero-subtitle').textContent = config.hero_subtitle || defaultConfig.hero_subtitle;
-          document.getElementById('nav-title').textContent = 'EventPlus';
-
-          const whatsappNum = (config.whatsapp_number || defaultConfig.whatsapp_number);
-          const email = (config.email_address || defaultConfig.email_address);
-
-          document.getElementById('whatsapp-display').textContent = whatsappNum;
-          document.getElementById('email-display').textContent = email;
-
-          const wa = `https://wa.me/${whatsappNum.replace(/[^0-9]/g,'')}`;
-          const heroBtn = document.getElementById('whatsapp-hero-btn');
-          const contactBtn = document.getElementById('whatsapp-contact-btn');
-          const emailBtn = document.getElementById('email-contact-btn');
-          if (heroBtn) heroBtn.href = wa;
-          if (contactBtn) contactBtn.href = wa;
-          if (emailBtn) emailBtn.href = `mailto:${email}`;
-
-          const bg = config.background_color || defaultConfig.background_color;
-          const pri = config.primary_action_color || defaultConfig.primary_action_color;
-          document.querySelectorAll('.gradient-bg').forEach(el=> el.style.background = `linear-gradient(135deg, ${bg} 0%, ${pri} 100%)`);
+  <script>
+        const defaultConfig = {
+            hero_title: "EventPlus — حلول العرض والتفاعل للهولوجرام والشاشات الذكية",
+            hero_subtitle: "نحوّل التقنية إلى تجربة إنسانية تُقنع جمهوركم وتُنتج بيانات قابلة للقرار",
+            whatsapp_number: "+968 98567383",
+            email_address: "info@momentconnect.com",
+            background_color: "#41296D",
+            surface_color: "#F5F5F7",
+            text_color: "#2C2C2C",
+            primary_action_color: "#EC2B84",
+            secondary_action_color: "#00B9A8"
+        };
+
+        let cart = [];
+        let selectedPackage = null;
+        let bookings = [];
+        let selectedDevices = [];
+        let selectedAddons = [];
+        let currentSlideIndex = 0;
+        let specialDiscountType = null;
+        let specialDiscountActive = false;
+
+        const dataHandler = {
+            onDataChanged(data) {
+                bookings = data;
+                console.log('Bookings updated:', bookings.length);
+                updateBookingsCount();
+                renderBookingHistory();
+            }
+        };
+
+        async function initializeApp() {
+            if (window.dataSdk) {
+                const initResult = await window.dataSdk.init(dataHandler);
+                if (!initResult.isOk) {
+                    console.error("Failed to initialize data SDK");
+                }
+            }
+
+            if (window.elementSdk) {
+                window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange: async (config) => {
+                        document.getElementById('hero-title').textContent = config.hero_title || defaultConfig.hero_title;
+                        document.getElementById('hero-subtitle').textContent = config.hero_subtitle || defaultConfig.hero_subtitle;
+                        document.getElementById('nav-title').textContent = 'EventPlus';
+                        
+                        const whatsappNum = config.whatsapp_number || defaultConfig.whatsapp_number;
+                        const email = config.email_address || defaultConfig.email_address;
+                        
+                        document.getElementById('whatsapp-display').textContent = whatsappNum;
+                        document.getElementById('email-display').textContent = email;
+                        
+                        const whatsappUrl = `https://wa.me/${whatsappNum.replace(/[^0-9]/g, '')}`;
+                        document.getElementById('whatsapp-hero-btn').href = whatsappUrl;
+                        document.getElementById('whatsapp-contact-btn').href = whatsappUrl;
+                        document.getElementById('email-contact-btn').href = `mailto:${email}`;
+                        
+                        const bgColor = config.background_color || defaultConfig.background_color;
+                        const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+                        
+                        document.querySelectorAll('.gradient-bg').forEach(el => {
+                            el.style.background = `linear-gradient(135deg, ${bgColor} 0%, ${primaryColor} 100%)`;
+                        });
+                    },
+                    mapToCapabilities: (config) => ({
+                        recolorables: [
+                            {
+                                get: () => config.background_color || defaultConfig.background_color,
+                                set: (value) => {
+                                    window.elementSdk.config.background_color = value;
+                                    window.elementSdk.setConfig({ background_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.surface_color || defaultConfig.surface_color,
+                                set: (value) => {
+                                    window.elementSdk.config.surface_color = value;
+                                    window.elementSdk.setConfig({ surface_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.text_color || defaultConfig.text_color,
+                                set: (value) => {
+                                    window.elementSdk.config.text_color = value;
+                                    window.elementSdk.setConfig({ text_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                                set: (value) => {
+                                    window.elementSdk.config.primary_action_color = value;
+                                    window.elementSdk.setConfig({ primary_action_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                                set: (value) => {
+                                    window.elementSdk.config.secondary_action_color = value;
+                                    window.elementSdk.setConfig({ secondary_action_color: value });
+                                }
+                            }
+                        ],
+                        borderables: [],
+                        fontEditable: undefined,
+                        fontSizeable: undefined
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ["hero_title", config.hero_title || defaultConfig.hero_title],
+                        ["hero_subtitle", config.hero_subtitle || defaultConfig.hero_subtitle],
+                        ["whatsapp_number", config.whatsapp_number || defaultConfig.whatsapp_number],
+                        ["email_address", config.email_address || defaultConfig.email_address]
+                    ])
+                });
+            }
         }
-      });
-    }
-  }catch(e){ console.warn('elementSdk init skipped', e); }
 
-  /* 3) روابط افتراضية إذا ما فيه elementSdk/Config */
-  try {
-    const whatsappNum = (defaultConfig.whatsapp_number || '').replace(/[^0-9]/g,'');
-    const email = defaultConfig.email_address || COMPANY_EMAIL;
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
 
-    const wa = `https://wa.me/${whatsappNum}`;
-    const heroBtn = document.getElementById('whatsapp-hero-btn');
-    const contactBtn = document.getElementById('whatsapp-contact-btn');
-    const emailBtn = document.getElementById('email-contact-btn');
+        // Slideshow Functions
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            if (index >= slides.length) currentSlideIndex = 0;
+            if (index < 0) currentSlideIndex = slides.length - 1;
+            
+            slides[currentSlideIndex].classList.add('active');
+            dots[currentSlideIndex].classList.add('active');
+        }
 
-    if (heroBtn && !heroBtn.href) heroBtn.href = wa;
-    if (contactBtn && !contactBtn.href) contactBtn.href = wa;
-    if (emailBtn && !emailBtn.href) emailBtn.href = `mailto:${email}`;
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            showSlide(currentSlideIndex);
+        }
 
-    const waDisp = document.getElementById('whatsapp-display');
-    const emDisp = document.getElementById('email-display');
-    if (waDisp && !waDisp.textContent.trim()) waDisp.textContent = defaultConfig.whatsapp_number;
-    if (emDisp && !emDisp.textContent.trim()) emDisp.textContent = email;
-  } catch(e){ /* no-op */ }
+        function currentSlide(index) {
+            currentSlideIndex = index - 1;
+            showSlide(currentSlideIndex);
+        }
 
-  /* 4) سلايدر */
-  currentSlideIndex = 0;
-  showSlide(currentSlideIndex);
-  startAutoSlideshow();
+        // Auto slideshow
+        function autoSlideshow() {
+            currentSlideIndex++;
+            showSlide(currentSlideIndex);
+        }
 
-  /* 5) ربط الأزرار الرئيسية */
-  (document.getElementById('email-submit-btn')||{}).onclick    = submitViaEmail;
-  (document.getElementById('whatsapp-submit-btn')||{}).onclick = submitViaWhatsApp;
+        // Start auto slideshow
+        setInterval(autoSlideshow, 5000);
 
-  /* 6) ربط زر التصدير CSV إن وُجد */
-  try{
-    const exportBtn = document.getElementById('export-csv-btn');
-    if (exportBtn && typeof exportSummaryCSV === 'function'){
-      exportBtn.onclick = exportSummaryCSV;
-    }
-  }catch(e){ /* ignore */ }
+        function addToCart(deviceName, price) {
+            cart.push({ name: deviceName, price: price });
+            updateCart();
+            showToast(`تمت إضافة ${deviceName} إلى الحجز`);
+        }
 
-  /* 7) تغييرات الأجهزة والإضافات */
-  document.querySelectorAll('.device-checkbox').forEach(cb=>{
-    cb.addEventListener('change', ()=>{
-      const name = cb.dataset.device;
-      const q = document.querySelector(`.device-quantity[data-device="${name}"]`);
-      if (cb.checked && q && parseInt(q.value||'0',10)===0){ q.value = 1; }
-      updateDeviceSelection();
-    });
-  });
-  document.querySelectorAll('.device-quantity').forEach(inp=>{
-    inp.addEventListener('input', ()=>{ handleQuantityChange(inp); });
-  });
-  document.querySelectorAll('.device-days').forEach(inp=>{
-    inp.addEventListener('input', ()=>{ handleDaysChange(inp); });
-  });
-  document.querySelectorAll('.addon-checkbox').forEach(cb=> cb.addEventListener('change', updateAddonSelection));
+        function addDeviceToSelection(deviceName, price, basePrice) {
+            // البحث عن الجهاز في النموذج وتحديده
+            const deviceCheckboxes = document.querySelectorAll('.device-checkbox');
+            
+            deviceCheckboxes.forEach(checkbox => {
+                if (checkbox.dataset.device === deviceName) {
+                    checkbox.checked = true;
+                    
+                    // تحديث الكمية إلى 1
+                    const quantityInput = document.querySelector(`.device-quantity[data-device="${deviceName}"]`);
+                    if (quantityInput) {
+                        quantityInput.value = 1;
+                    }
+                }
+            });
+            
+            // تحديث التحديد وإظهار الملخص
+            updateDeviceSelection();
+            
+            // التمرير إلى قسم الحجز
+            scrollToSection('booking');
+            
+            // إظهار رسالة تأكيد
+            showToast(`تمت إضافة ${deviceName} إلى الحجز ✅`);
+        }
 
-  /* 8) حقول منطقية */
-  (document.getElementById('inside-muscat-yes')||{}).onchange = toggleDistanceField;
-  (document.getElementById('inside-muscat-no')||{}).onchange  = toggleDistanceField;
-  (document.getElementById('electricity-yes')||{}).onchange   = toggleBatteryRecommendation;
-  (document.getElementById('electricity-no')||{}).onchange    = toggleBatteryRecommendation;
+        function selectPackage(packageName, price) {
+            selectedPackage = { name: packageName, price: price };
+            cart = [selectedPackage];
+            updateCart();
+            scrollToSection('booking');
+            showToast(`تم اختيار باقة ${packageName}`);
+        }
 
-  /* 9) خصومات خاصة */
-  (document.getElementById('student-discount')||{}).onchange = handleSpecialDiscountRequest;
-  (document.getElementById('charity-discount')||{}).onchange = handleSpecialDiscountRequest;
+        function selectEssentialPlusPackage() {
+            // إلغاء تحديد جميع الأجهزة والإضافات أولاً
+            document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.device-quantity').forEach(input => input.value = 0);
+            document.querySelectorAll('.addon-checkbox').forEach(cb => cb.checked = false);
+            
+            // تحديد الإضافات المشمولة في الباقة
+            const htmlCheckbox = document.querySelector('.addon-checkbox[data-addon="صفحة تفاعلية HTML"]');
+            const motionCheckbox = document.querySelector('.addon-checkbox[data-addon="فيديو موشن"]');
+            const brandingCheckbox = document.querySelector('.addon-checkbox[data-addon="براندنغ الأجهزة"]');
+            
+            if (htmlCheckbox) htmlCheckbox.checked = true;
+            if (motionCheckbox) motionCheckbox.checked = true;
+            if (brandingCheckbox) brandingCheckbox.checked = true;
+            
+            updateDeviceSelection();
+            updateAddonSelection();
+            scrollToSection('booking');
+            showToast('✅ تم اختيار باقة Essential Plus - اختر شاشة واحدة + إضافات ذكية (75-120 OMR)');
+        }
 
-  /* 10) تحديث أولي للملخص */
-  updateBookingSummary();
-}
+        function selectInteractiveProPackage() {
+            // إلغاء تحديد جميع الأجهزة والإضافات أولاً
+            document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.device-quantity').forEach(input => input.value = 0);
+            document.querySelectorAll('.addon-checkbox').forEach(cb => cb.checked = false);
+            
+            // تحديد الإضافات المشمولة في الباقة
+            const gameCheckbox = document.querySelector('.addon-checkbox[data-addon="لعبة جاهزة"]');
+            const htmlCheckbox = document.querySelector('.addon-checkbox[data-addon="صفحة تفاعلية HTML"]');
+            const brandingCheckbox = document.querySelector('.addon-checkbox[data-addon="براندنغ الأجهزة"]');
+            
+            if (gameCheckbox) gameCheckbox.checked = true;
+            if (htmlCheckbox) htmlCheckbox.checked = true;
+            if (brandingCheckbox) brandingCheckbox.checked = true;
+            
+            updateDeviceSelection();
+            updateAddonSelection();
+            scrollToSection('booking');
+            showToast('✅ تم اختيار باقة Interactive Pro - اختر شاشة واحدة + حلول متقدمة (120-200 OMR)');
+        }
 
+        function selectPremiumCompletePackage() {
+            // إلغاء تحديد جميع الأجهزة والإضافات أولاً
+            document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.device-quantity').forEach(input => input.value = 0);
+            document.querySelectorAll('.addon-checkbox').forEach(cb => cb.checked = false);
+            
+            // تحديد الإضافات المشمولة في الباقة
+            const photographyCheckbox = document.querySelector('.addon-checkbox[data-addon="تصوير احترافي"]');
+            const customImagesCheckbox = document.querySelector('.addon-checkbox[data-addon="صور مخصصة للشاشات"]');
+            const techSupportCheckbox = document.querySelector('.addon-checkbox[data-addon="دعم فني بالساعة"]');
+            
+            if (photographyCheckbox) photographyCheckbox.checked = true;
+            if (customImagesCheckbox) customImagesCheckbox.checked = true;
+            if (techSupportCheckbox) techSupportCheckbox.checked = true;
+            
+            updateDeviceSelection();
+            updateAddonSelection();
+            scrollToSection('booking');
+            showToast('✅ تم اختيار باقة Premium Complete - اختر شاشتين + الحل الشامل (180-280 OMR)');
+        }
 
-/* 19) تشغيل */
-document.addEventListener('DOMContentLoaded', initializeApp);
+        function updateCart() {
+            const selectedItemsDiv = document.getElementById('selected-items');
+            const emptyCart = document.getElementById('empty-cart');
+            
+            if (cart.length === 0) {
+                emptyCart.style.display = 'block';
+                selectedItemsDiv.innerHTML = '<p class="text-gray-400 text-center" id="empty-cart">لم تختر أي أجهزة بعد</p>';
+            } else {
+                selectedItemsDiv.innerHTML = cart.map((item, index) => `
+                    <div class="flex justify-between items-center bg-white p-3 rounded-lg mb-2">
+                        <span class="font-semibold">${item.name}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-purple-600 font-bold">${item.price} OMR</span>
+                            <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const totalWithVat = (total * 1.05).toFixed(2);
+            
+            document.getElementById('total-price').textContent = `${total} OMR`;
+            document.getElementById('total-with-vat').textContent = `${totalWithVat} OMR`;
+        }
 
-/* 20) ربط دوال للسطرية الموجودة في HTML */
-window.changeSlide = changeSlide;
-window.currentSlide = currentSlideTo;
-window.applySuggestion = applySuggestion;
-window.scrollToSection = scrollToSection;
-window.toggleBookingHistory = toggleBookingHistory;
-window.toggleDistanceField = toggleDistanceField;
-window.toggleBatteryRecommendation = toggleBatteryRecommendation;
-/* ====== (A) دوال الدردشة العائمة "عارف" – حد أدنى عملي بدون باك-إند ====== */
-function toggleFloatingChat(){
-  const win = document.getElementById('floating-chat-window');
-  if (!win) return;
-  win.classList.toggle('hidden');
-}
-function appendFloatingMsg(text, from='bot'){
-  const box = document.getElementById('floating-chat-messages');
-  if (!box) return;
-  const isBot = from==='bot';
-  const avatar = isBot ? '🤖' : '🧑';
-  const bubbleCls = isBot ? 'bg-purple-50 rounded-2xl rounded-tl-sm' : 'bg-blue-50 rounded-2xl rounded-tr-sm';
-  const align = isBot ? 'flex-row' : 'flex-row-reverse';
-  const html = `
-    <div class="flex ${align} gap-2">
-      <div class="w-6 h-6 ${isBot?'bg-purple-500':'bg-blue-500'} rounded-full flex items-center justify-center text-white text-xs">${avatar}</div>
-      <div class="${bubbleCls} p-3 max-w-xs"><p class="text-sm whitespace-pre-wrap">${text}</p></div>
-    </div>`;
-  box.insertAdjacentHTML('beforeend', html);
-  box.scrollTop = box.scrollHeight;
-}
-function qaRouter(q){
-  const s = q.trim();
-  const low = s.toLowerCase();
-  // ردود سريعة ذكية بسيطة
-  if (low.includes('براندنغ') || low.includes('branding')) {
-    return 'البراندنغ هو تطبيق الهوية على الجهاز (ألوان/شعار) ليتطابق مع حملتك. سعره عندنا 15–35 OMR حسب المقاس والتغطية.';
-  }
-  if (low.includes('شاشة') && (low.includes('معرض') || low.includes('booth'))) {
-    return 'للمعارض الداخلية: هوية تك 32″ مناسبة للهوية والعروض. لو خارجية أو ميدانية بدون كهرباء: شاشة البطارية 32″ (NFC) تعمل ~8 ساعات.';
-  }
-  if (low.includes('تصوير') || low.includes('photo') || low.includes('video')) {
-    return 'التصوير الاحترافي يبدأ 65–120 OMR لليوم، ويشمل ملخص فيديو قصير؛ نرسل لك عيّنة ستايل إذا رغبت.';
-  }
-  if (low.includes('الفرق بين الأجهزة') || low.includes('الفرق بين') || low.includes('difference')) {
-    return '• هوية تك 32″: شاشة عرض هوية (LED، لمس اختياري، بدون NFC)\n• البطارية 32″: متنقلة + NFC + حتى 8 ساعات\n• لمسة تك 21.5″: كشك لمس + NFC لجمع بيانات';
-  }
-  return 'تمام! تقدر توضح نوع الفعالية والموقع وعدد الأيام؟ بعطيك اقتراح + سعر تقريبي سريع.';
-}
-function sendFloatingChatMessage(){
-  const inp = document.getElementById('floating-chat-input');
-  if (!inp?.value.trim()) return;
-  const txt = inp.value.trim();
-  inp.value = '';
-  appendFloatingMsg(txt, 'user');
-  setTimeout(()=> appendFloatingMsg(qaRouter(txt), 'bot'), 200);
-}
-function handleFloatingChatKeyPress(e){ if (e.key==='Enter') sendFloatingChatMessage(); }
-function askFloatingQuestion(q){ appendFloatingMsg(q,'user'); setTimeout(()=> appendFloatingMsg(qaRouter(q),'bot'), 200); }
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+            showToast('تم الحذف من الحجز');
+        }
 
-/* ربط للأزرار/المدخلات (موجودة في الـ HTML) */
-window.toggleFloatingChat = toggleFloatingChat;
-window.sendFloatingChatMessage = sendFloatingChatMessage;
-window.handleFloatingChatKeyPress = handleFloatingChatKeyPress;
-window.askFloatingQuestion = askFloatingQuestion;
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">✓</span>
+                    <span class="font-semibold">${message}</span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
 
-/* ====== (B) دردشة قسم "المساعد الذكي" (الكارت الكبير) ====== */
-function appendMainChat(text, from='bot'){
-  const box = document.getElementById('chat-messages');
-  if (!box) return;
-  const isBot = from==='bot';
-  const avatar = isBot ? '🤖' : '🧑';
-  const bubbleCls = isBot ? 'bg-purple-50 rounded-2xl rounded-tl-sm' : 'bg-blue-50 rounded-2xl rounded-tr-sm';
-  const align = isBot ? 'flex-row' : 'flex-row-reverse';
-  const html = `
-    <div class="flex ${align} gap-3">
-      <div class="w-8 h-8 ${isBot?'bg-purple-500':'bg-blue-500'} rounded-full flex items-center justify-center text-white text-sm">${avatar}</div>
-      <div class="${bubbleCls} p-4 max-w-md"><p class="text-sm whitespace-pre-wrap">${text}</p></div>
-    </div>`;
-  box.insertAdjacentHTML('beforeend', html);
-  box.scrollTop = box.scrollHeight;
-}
-function qaRouterMain(q){
-  const base = qaRouter(q);
-  // إضافة Call-to-Action ذكي
-  return base + '\n\nإذا ترغب، اختر الأجهزة من الكتالوج واضغط "إرسال عبر الواتساب" لنثبت لك التوفر.';
-}
-function sendChatMessage(){
-  const inp = document.getElementById('chat-input');
-  if (!inp?.value.trim()) return;
-  const txt = inp.value.trim();
-  inp.value = '';
-  appendMainChat(txt, 'user');
-  setTimeout(()=> appendMainChat(qaRouterMain(txt), 'bot'), 200);
-}
-function handleChatKeyPress(e){ if (e.key==='Enter') sendChatMessage(); }
-function askQuickQuestion(q){ appendMainChat(q, 'user'); setTimeout(()=> appendMainChat(qaRouterMain(q),'bot'), 200); }
+        function toggleDistanceField() {
+            const insideMuscatNo = document.getElementById('inside-muscat-no');
+            const distanceField = document.getElementById('distance-field');
+            
+            if (insideMuscatNo.checked) {
+                distanceField.classList.remove('hidden');
+            } else {
+                distanceField.classList.add('hidden');
+            }
+        }
 
-window.sendChatMessage = sendChatMessage;
-window.handleChatKeyPress = handleChatKeyPress;
-window.askQuickQuestion = askQuickQuestion;
+        function toggleBatteryRecommendation() {
+            const electricityNo = document.getElementById('electricity-no');
+            const batteryRecommendation = document.getElementById('battery-recommendation');
+            
+            if (electricityNo.checked) {
+                batteryRecommendation.classList.remove('hidden');
+            } else {
+                batteryRecommendation.classList.add('hidden');
+            }
+        }
 
-/* ====== (C) زر تصدير CSV (الملخّص + السجل) ====== */
-function buildCSV(rows){
-  return rows.map(r=>r.map(v=> {
-    const s = String(v ?? '');
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-  }).join(',')).join('\n');
-}
-function exportSummaryCSV(){
-  const p = calculateSmartPricing();
-  const head1 = ['نوع','الاسم','الكمية','الأيام','سعر/يوم','عامل الخصم','الإجمالي'];
-  const devRows = selectedDevices.length
-    ? selectedDevices.map(d=>['جهاز', d.name, d.quantity, d.days, d.dailyRate, `${Math.round((1-d.factor)*100)}%`, d.total.toFixed(2)])
-    : [['—','—','—','—','—','—','0']];
-  const addonsRows = selectedAddons.length
-    ? selectedAddons.map(a=>['إضافة', a.name, '-', '-', '-', '-', 'سعر حسب الطلب'])
-    : [];
+        // دالة حساب معامل المدة الطويلة
+        function longTermFactor(days) {
+            if (days <= 3) return 1.00;
+            if (days <= 7) return 0.85;
+            if (days <= 14) return 0.50;
+            if (days <= 21) return 0.40;
+            return 0.40; // 22-30 days
+        }
 
-  const totals = [
-    [],
-    ['المجموع قبل الخصم', p.originalSubtotal.toFixed(2)],
-    ['إجمالي الخصم', `-${p.totalDiscount.toFixed(2)}`],
-    ['الأجهزة بعد الخصم', p.finalSubtotal.toFixed(2)],
-    ['التوصيل', p.deliveryFee],
-    ['المسافة الإضافية', p.extraDistanceFee.toFixed(2)],
-    ['الإجمالي النهائي', (p.finalSubtotal + p.deliveryFee + p.extraDistanceFee).toFixed(2)]
-  ];
+        // دالة حساب السعر الذكي للجهاز الواحد
+        function calculateSmartPrice(dailyRate, basePrice, days, quantity = 1) {
+            let subtotal = dailyRate * days * longTermFactor(days);
+            
+            // تطبيق السقف الشهري الذكي (45% من سعر الأصل)
+            if (days >= 22) {
+                const monthlyCap = basePrice * 0.45;
+                subtotal = Math.min(subtotal, monthlyCap);
+            }
+            
+            // لا نتجاوز قيمة الأصل أبداً
+            subtotal = Math.min(subtotal, basePrice);
+            
+            return subtotal * quantity;
+        }
 
-  const rows = [head1, ...devRows, ...addonsRows, ...totals];
-  const csv = buildCSV(rows);
-  const blob = new Blob([`\uFEFF${csv}`], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `EventPlus-Summary-${Date.now()}.csv`;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-  showToast('📄 تم تنزيل CSV الملخّص');
-}
+        function updateDeviceSelection() {
+            selectedDevices = [];
+            const deviceCheckboxes = document.querySelectorAll('.device-checkbox:checked');
+            
+            deviceCheckboxes.forEach(checkbox => {
+                const deviceName = checkbox.dataset.device;
+                const dailyRate = parseInt(checkbox.dataset.price);
+                const basePrice = parseInt(checkbox.dataset.basePrice);
+                const quantityInput = document.querySelector(`.device-quantity[data-device="${deviceName}"]`);
+                const daysInput = document.querySelector(`.device-days[data-device="${deviceName}"]`);
+                
+                const quantity = parseInt(quantityInput.value) || 0;
+                const days = parseInt(daysInput.value) || 1;
+                
+                if (quantity > 0) {
+                    const smartTotal = calculateSmartPrice(dailyRate, basePrice, days, quantity);
+                    
+                    selectedDevices.push({
+                        name: deviceName,
+                        dailyRate: dailyRate,
+                        basePrice: basePrice,
+                        quantity: quantity,
+                        days: days,
+                        factor: longTermFactor(days),
+                        isLongTerm: days >= 4,
+                        total: smartTotal
+                    });
+                }
+            });
+            
+            updateBookingSummary();
+        }
 
-/* ملاحظة: تضيف زر بترويسة الملخّص إذا حبيت */
-(function ensureExportBtn(){
-  if (document.getElementById('export-csv-btn')) return;
-  const sidebar = document.querySelector('#booking-summary')?.parentElement;
-  if (!sidebar) return;
-  const btn = document.createElement('button');
-  btn.id = 'export-csv-btn';
-  btn.className = 'w-full mt-2 bg-gray-800 text-white py-2 rounded-lg font-bold hover:bg-gray-900 transition-all';
-  btn.textContent = 'تصدير الملخّص CSV';
-  btn.onclick = exportSummaryCSV;
-  sidebar.appendChild(btn);
-})();
+        function handleDeviceCheckboxChange(checkbox) {
+            const deviceName = checkbox.dataset.device;
+            const quantityInput = document.querySelector(`.device-quantity[data-device="${deviceName}"]`);
+            const warningDiv = document.querySelector(`.quantity-warning[data-device="${deviceName}"]`);
+            
+            if (checkbox.checked) {
+                // إذا تم تحديد الجهاز، تعيين الكمية إلى 1 تلقائياً
+                if (parseInt(quantityInput.value) === 0) {
+                    quantityInput.value = 1;
+                }
+                // إخفاء التحذير إذا كان موجوداً
+                if (warningDiv) {
+                    warningDiv.style.display = 'none';
+                }
+            }
+            
+            updateDeviceSelection();
+        }
 
-/* ====== (D) تحسينات صغيرة إضافية ====== */
-// تنظيف رقم واتساب الافتراضي إذا غاب elementSdk
-(function fixWhats(){
-  const n = (defaultConfig.whatsapp_number||'').replace(/[^0-9]/g,'');
-  const hero = document.getElementById('whatsapp-hero-btn');
-  const contact = document.getElementById('whatsapp-contact-btn');
-  if (n && hero && !hero.getAttribute('href')) hero.href = `https://wa.me/${n}`;
-  if (n && contact && !contact.getAttribute('href')) contact.href = `https://wa.me/${n}`;
-})();
+        function handleQuantityChange(quantityInput) {
+            const deviceName = quantityInput.dataset.device;
+            const checkbox = document.querySelector(`.device-checkbox[data-device="${deviceName}"]`);
+            const quantity = parseInt(quantityInput.value) || 0;
+            
+            // إنشاء أو العثور على div التحذير
+            let warningDiv = document.querySelector(`.quantity-warning[data-device="${deviceName}"]`);
+            if (!warningDiv) {
+                warningDiv = document.createElement('div');
+                warningDiv.className = 'quantity-warning text-red-500 text-xs mt-1';
+                warningDiv.dataset.device = deviceName;
+                quantityInput.parentElement.appendChild(warningDiv);
+            }
+            
+            if (checkbox.checked && quantity === 0) {
+                // إظهار تحذير إذا كان الجهاز محدد والكمية صفر
+                warningDiv.textContent = '⚠️ يجب أن تكون الكمية أكبر من صفر';
+                warningDiv.style.display = 'block';
+            } else {
+                // إخفاء التحذير
+                warningDiv.style.display = 'none';
+            }
+            
+            updateDeviceSelection();
+        }
 
-// حماية إضافية لقيم الأيام/الكمية
-['input','change'].forEach(ev=>{
-  document.addEventListener(ev, (e)=>{
-    if (e.target?.classList?.contains('device-quantity')){
-      const v = Math.max(0, Math.min(10, parseInt(e.target.value||'0',10)));
-      if (String(v)!==e.target.value) e.target.value = v;
-    }
-    if (e.target?.classList?.contains('device-days')){
-      let d = Math.max(1, Math.min(30, parseInt(e.target.value||'1',10)));
-      if (String(d)!==e.target.value) e.target.value = d;
-    }
-  });
-});
+        function handleDaysChange(daysInput) {
+            const days = parseInt(daysInput.value) || 1;
+            const deviceName = daysInput.dataset.device;
+            
+            if (days > 30) {
+                // إعادة تعيين القيمة إلى 30
+                daysInput.value = 30;
+                
+                // إظهار رسالة تواصل للفترات الطويلة
+                showLongTermContactMessage();
+                return;
+            }
+            
+            updateDeviceSelection();
+        }
 
-// تذكير نصّي برسوم المسافة (0.25–0.35 OMR/كم) إذا تعدّى 30 كم
-(function hintDistance(){
-  const el = document.getElementById('distance-km');
-  if (!el) return;
-  el.addEventListener('input', ()=> {
-    const v = parseInt(el.value||'0',10);
-    if (v>30) showToast('ℹ️ خارج 30كم: تُحتسب 0.25–0.35 OMR/كم + بدل سكن عند الحاجة');
-  });
-})();
+        function showLongTermContactMessage() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            messageDiv.innerHTML = `
+                <div class="bg-white rounded-3xl p-8 max-w-md mx-4 text-center">
+                    <div class="text-6xl mb-4">📞</div>
+                    <h3 class="text-2xl font-bold mb-4 text-purple-600">عرض مغري للفترات الطويلة!</h3>
+                    <p class="text-gray-600 mb-6">للحجوزات أكثر من 30 يوماً، لدينا عروض خاصة وأسعار مغرية جداً!</p>
+                    <p class="text-sm text-purple-700 font-semibold mb-6">قم بالتواصل معنا مباشرة للحصول على عرض مخصص</p>
+                    <div class="flex gap-3 justify-center">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-full font-bold hover:bg-gray-400 transition-all">
+                            إغلاق
+                        </button>
+                        <button onclick="contactForLongTerm()" class="bg-green-500 text-white px-6 py-3 rounded-full font-bold hover:bg-green-600 transition-all">
+                            تواصل الآن 💬
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(messageDiv);
+        }
 
-<script>
-  // تحسين اللمس على الموبايل
-  document.addEventListener('touchstart', ()=>{}, {passive:true});
-  document.addEventListener('touchmove',  ()=>{}, {passive:true});
-</script>
+        function contactForLongTerm() {
+            const message = encodeURIComponent(`مرحباً، أرغب في الاستفسار عن عروض الفترات الطويلة (أكثر من 30 يوماً) للأجهزة التالية:\n\n• هوية تك – شاشة الهوية الذكية\n• هوية تك – الشاشة المتنقلة الذكية\n• لمسة تك – الكشك التفاعلي باللمس\n\nيرجى تزويدي بعرض مخصص للفترات الطويلة 🎯`);
+            const whatsappUrl = `https://wa.me/96898567383?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+            
+            // إغلاق النافذة المنبثقة
+            document.querySelector('.fixed.inset-0').remove();
+        }
 
+        function updateAddonSelection() {
+            selectedAddons = [];
+            const addonCheckboxes = document.querySelectorAll('.addon-checkbox:checked');
+            
+            addonCheckboxes.forEach(checkbox => {
+                const addonName = checkbox.dataset.addon;
+                
+                selectedAddons.push({
+                    name: addonName,
+                    price: 0 // الإضافات بدون سعر محدد
+                });
+            });
+            
+            updateBookingSummary();
+        }
 
-</body>
+        function calculateDeliveryFee(totalQuantity) {
+            // نظام تسعير التوصيل حسب عدد الشاشات
+            if (totalQuantity === 0) return 0;
+            if (totalQuantity <= 2) return 15;
+            if (totalQuantity === 3) return 20;
+            if (totalQuantity === 4) return 30;
+            if (totalQuantity === 5) return 40;
+            if (totalQuantity >= 6) return 60;
+            return 15; // افتراضي
+        }
+
+        function handleSpecialDiscountRequest() {
+            const studentCheckbox = document.getElementById('student-discount');
+            const charityCheckbox = document.getElementById('charity-discount');
+            const requestDiv = document.getElementById('special-discount-request');
+            
+            // منع تحديد أكثر من مطالبة واحدة
+            if (studentCheckbox.checked && charityCheckbox.checked) {
+                if (event.target === studentCheckbox) {
+                    charityCheckbox.checked = false;
+                } else {
+                    studentCheckbox.checked = false;
+                }
+            }
+            
+            if (studentCheckbox.checked) {
+                specialDiscountType = 'student';
+                specialDiscountActive = true;
+                requestDiv.classList.remove('hidden');
+                document.getElementById('discount-reason').placeholder = 'مثال: طالب في جامعة السلطان قابوس، كلية الهندسة، أحتاج الأجهزة لمشروع التخرج...';
+            } else if (charityCheckbox.checked) {
+                specialDiscountType = 'charity';
+                specialDiscountActive = true;
+                requestDiv.classList.remove('hidden');
+                document.getElementById('discount-reason').placeholder = 'مثال: جمعية خيرية مسجلة رسمياً، نحتاج الأجهزة لحملة توعوية مجتمعية...';
+            } else {
+                specialDiscountType = null;
+                specialDiscountActive = false;
+                requestDiv.classList.add('hidden');
+                document.getElementById('discount-reason').value = '';
+            }
+            
+            // لا نطبق خصم على الأسعار، فقط نسجل المطالبة
+            updateBookingSummary();
+        }
+
+        function calculateSmartPricing() {
+            // حساب إجمالي الأجهزة (بالتسعير الذكي المدمج)
+            let totalDevices = selectedDevices.reduce((sum, device) => sum + device.total, 0);
+            let subtotal = totalDevices;
+            let discounts = [];
+            let suggestions = [];
+            let longTermPerks = [];
+            
+            // التحقق من وجود باقة الفترات الطويلة
+            const hasLongTermDevices = selectedDevices.some(d => d.isLongTerm);
+            
+            if (hasLongTermDevices) {
+                longTermPerks = [
+                    'صيانة وقائية كل 10 أيام + زيارة طوارئ مجانية',
+                    'تحديث المحتوى حتى 3 مرات خلال فترة الإيجار',
+                    'دعم فني واتساب/اتصال أولوية',
+                    'قفل نظام العرض (Kiosk/Lockdown)',
+                    'بديل مؤقت عند العطل غير المتعمد (حسب التوافر)'
+                ];
+            }
+            
+            // خصم الأجهزة المتعددة (10% عند اختيار 2+ جهاز)
+            const totalQuantity = selectedDevices.reduce((sum, device) => sum + device.quantity, 0);
+            let multiDeviceDiscount = 0;
+            if (totalQuantity >= 2 && totalDevices > 0) {
+                multiDeviceDiscount = totalDevices * 0.10;
+                discounts.push({ name: 'خصم تعدد الأجهزة (10%)', amount: multiDeviceDiscount });
+            }
+            
+            // خصم الإضافات المتعددة (يطبق على الأجهزة عند طلب إضافات متعددة)
+            let addonsDiscount = 0;
+            if (selectedAddons.length >= 3 && totalDevices > 0) {
+                addonsDiscount = totalDevices * 0.15;
+                discounts.push({ name: 'خصم الإضافات المتعددة (15%)', amount: addonsDiscount });
+            } else if (selectedAddons.length >= 2 && totalDevices > 0) {
+                addonsDiscount = totalDevices * 0.08;
+                discounts.push({ name: 'خصم الإضافات المتعددة (8%)', amount: addonsDiscount });
+            }
+            
+            // اقتراحات ذكية حسب الأجهزة المختارة
+            const hasDigitalBoard = selectedDevices.some(d => d.name.includes('هوية تك – شاشة الهوية الذكية'));
+            const hasBatteryKiosk = selectedDevices.some(d => d.name.includes('هوية تك – الشاشة المتنقلة الذكية'));
+            const hasInteractiveHTML = selectedAddons.some(a => a.name.includes('صفحة تفاعلية HTML'));
+            const hasPhotography = selectedAddons.some(a => a.name.includes('تصوير احترافي'));
+            
+            // اقتراح صفحة تفاعلية للشاشات الذكية + خصم إضافي
+            if ((hasDigitalBoard || hasBatteryKiosk) && !hasInteractiveHTML) {
+                suggestions.push({
+                    type: 'interactive_page',
+                    title: '💡 اقتراح ذكي: صفحة تفاعلية',
+                    message: 'أضف صفحة تفاعلية HTML واحصل على خصم إضافي 5% على المجموع!',
+                    discount: 0.05
+                });
+            }
+            
+            // خصم الصفحة التفاعلية للشاشات الذكية
+            let interactivePageDiscount = 0;
+            if ((hasDigitalBoard || hasBatteryKiosk) && hasInteractiveHTML && totalDevices > 0) {
+                interactivePageDiscount = totalDevices * 0.05;
+                discounts.push({ name: 'خصم الصفحة التفاعلية للشاشات الذكية (5%)', amount: interactivePageDiscount });
+            }
+            
+            // لا نطبق خصم خاص على الأسعار، فقط نسجل المطالبة
+            
+            const totalDiscount = multiDeviceDiscount + addonsDiscount + interactivePageDiscount;
+            const finalSubtotal = subtotal - totalDiscount;
+            
+            // حساب رسوم التوصيل الجديدة حسب عدد الشاشات
+            const deliveryFee = calculateDeliveryFee(totalQuantity);
+            
+            // حساب المسافة الإضافية (خارج مسقط)
+            const distanceKm = parseInt(document.getElementById('distance-km')?.value || 0);
+            const extraKm = Math.max(0, distanceKm - 30);
+            const extraDistanceFee = extraKm * 0.150;
+            
+            return {
+                originalSubtotal: subtotal,
+                discounts: discounts,
+                suggestions: suggestions,
+                longTermPerks: longTermPerks,
+                totalDiscount: totalDiscount,
+                finalSubtotal: finalSubtotal,
+                deliveryFee: deliveryFee,
+                extraDistanceFee: extraDistanceFee,
+                totalQuantity: totalQuantity,
+                hasLongTerm: hasLongTermDevices
+            };
+        }
+
+        function updateBookingSummary() {
+            const summaryDiv = document.getElementById('booking-summary');
+            
+            if (selectedDevices.length === 0 && selectedAddons.length === 0) {
+                summaryDiv.innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <div class="text-4xl mb-2">📱</div>
+                        <p>اختر الأجهزة أو الإضافات لرؤية الملخص</p>
+                    </div>
+                `;
+            } else {
+                let summaryHTML = '';
+                
+                const pricing = calculateSmartPricing();
+                
+                // إظهار باقة الفترات الطويلة إذا كانت مفعلة
+                if (pricing.hasLongTerm) {
+                    summaryHTML += `
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-3 mb-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-lg">🎉</span>
+                                <span class="font-bold text-sm">تم تفعيل باقة الفترات الطويلة</span>
+                            </div>
+                            <div class="text-xs opacity-90">تمت إضافة مزايا مجانية لطلبك!</div>
+                        </div>
+                    `;
+                }
+                
+                if (selectedDevices.length > 0) {
+                    summaryHTML += '<div class="mb-4"><h4 class="font-bold text-purple-900 mb-2">الأجهزة:</h4>';
+                    selectedDevices.forEach(device => {
+                        const originalPrice = device.dailyRate * device.days * device.quantity;
+                        const savings = originalPrice - device.total;
+                        
+                        summaryHTML += `
+                            <div class="border-b border-gray-100 pb-2 mb-2 last:border-b-0">
+                                <div class="flex justify-between items-start text-sm">
+                                    <span class="font-medium">${device.name}</span>
+                                    <span class="font-semibold">${device.total.toFixed(2)} OMR</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    ${device.quantity} جهاز × ${device.days} أيام
+                                    ${device.isLongTerm ? `<span class="text-purple-600 font-semibold"> (خصم ${Math.round((1 - device.factor) * 100)}%)</span>` : ''}
+                                </div>
+                                ${savings > 0 ? `<div class="text-xs text-green-600 font-semibold">وفرت ${savings.toFixed(2)} OMR</div>` : ''}
+                            </div>
+                        `;
+                    });
+                    summaryHTML += '</div>';
+                }
+                
+                // إظهار المزايا المجانية للفترات الطويلة
+                if (pricing.longTermPerks.length > 0) {
+                    summaryHTML += `
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
+                            <div class="text-sm font-bold text-purple-800 mb-2">🎁 Long-Term Perks (مجاناً):</div>
+                            <div class="text-xs text-purple-700 space-y-1">
+                                ${pricing.longTermPerks.map(perk => `<div>• ${perk}</div>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // إظهار تفاصيل رسوم التوصيل
+                if (selectedDevices.length > 0) {
+                    summaryHTML += `
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                            <div class="text-sm font-bold text-blue-800 mb-2">🚚 رسوم التوصيل:</div>
+                            <div class="text-xs text-blue-700">
+                                <div class="grid grid-cols-2 gap-1 mb-2">
+                                    <div>حتى 2 شاشة: 15 OMR</div>
+                                    <div>3 شاشات: 20 OMR</div>
+                                    <div>4 شاشات: 30 OMR</div>
+                                    <div>5 شاشات: 40 OMR</div>
+                                    <div>6+ شاشات: 60 OMR</div>
+                                </div>
+                                ${pricing.totalQuantity > 0 ? `<div class="font-semibold text-blue-800">طلبك الحالي (${pricing.totalQuantity} شاشة): ${pricing.deliveryFee} OMR</div>` : ''}
+                                ${pricing.extraDistanceFee > 0 ? `<div class="font-semibold text-blue-800">رسوم المسافة الإضافية: ${pricing.extraDistanceFee.toFixed(2)} OMR</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (selectedAddons.length > 0) {
+                    summaryHTML += '<div class="mb-4"><h4 class="font-bold text-purple-900 mb-2">الإضافات:</h4>';
+                    selectedAddons.forEach(addon => {
+                        summaryHTML += `
+                            <div class="flex justify-between items-center text-sm mb-1">
+                                <span>${addon.name}</span>
+                                <span class="font-semibold text-blue-600">سعر حسب الطلب</span>
+                            </div>
+                        `;
+                    });
+                    summaryHTML += '</div>';
+                    
+                    // إظهار ملاحظة الإضافات
+                    summaryHTML += `
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                            <div class="text-sm font-bold text-blue-800 mb-1">💡 ملاحظة مهمة</div>
+                            <div class="text-xs text-blue-700 mb-2">
+                                الإضافات المختارة ستُسعّر حسب الطلب. يرجى وصف احتياجاتك بالتفصيل في الملاحظات وسنقدم لك عرض سعر مخصص ${selectedDevices.length > 0 ? 'مع خصم ذكي إضافي' : ''}.
+                            </div>
+                            <div class="text-xs text-blue-600 font-semibold">
+                                مثال: صفحة هبوط تحتوي على أجندة الحفل، الأسئلة الشائعة، نماذج التسجيل، وروابط التواصل
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                summaryDiv.innerHTML = summaryHTML;
+            }
+            
+            const pricing = calculateSmartPricing();
+            
+            // إظهار الاقتراحات الذكية
+            let suggestionsHTML = '';
+            if (pricing.suggestions.length > 0) {
+                suggestionsHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                        ${pricing.suggestions.map(suggestion => `
+                            <div class="mb-3 last:mb-0">
+                                <div class="text-sm font-bold text-blue-800 mb-1">${suggestion.title}</div>
+                                <div class="text-xs text-blue-700 mb-2">${suggestion.message}</div>
+                                <button onclick="applySuggestion('${suggestion.type}')" class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-700 transition-all">
+                                    تطبيق الاقتراح
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // إظهار الخصومات إذا وُجدت
+            let discountHTML = '';
+            if (pricing.discounts.length > 0) {
+                discountHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                        <div class="text-sm font-bold text-green-800 mb-2">🎉 خصومات إضافية:</div>
+                        ${pricing.discounts.map(discount => `
+                            <div class="flex justify-between text-xs text-green-700">
+                                <span>${discount.name}</span>
+                                <span>-${discount.amount.toFixed(2)} OMR</span>
+                            </div>
+                        `).join('')}
+                        <div class="border-t border-green-300 mt-2 pt-2 flex justify-between text-sm font-bold text-green-800">
+                            <span>إجمالي الخصم الإضافي:</span>
+                            <span>-${pricing.totalDiscount.toFixed(2)} OMR</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // تحديث السعر الإجمالي
+            let finalTotal = pricing.finalSubtotal + pricing.deliveryFee + pricing.extraDistanceFee;
+            if (selectedDevices.length > 0) {
+                let totalText = `${finalTotal.toFixed(2)} OMR`;
+                
+                // إضافة تفاصيل رسوم التوصيل
+                let deliveryDetails = [];
+                if (pricing.deliveryFee > 0) {
+                    deliveryDetails.push(`توصيل ${pricing.deliveryFee} OMR`);
+                }
+                if (pricing.extraDistanceFee > 0) {
+                    deliveryDetails.push(`مسافة إضافية ${pricing.extraDistanceFee.toFixed(2)} OMR`);
+                }
+                
+                if (deliveryDetails.length > 0) {
+                    totalText += ` (شامل ${deliveryDetails.join(' + ')})`;
+                }
+                
+                const addonNote = selectedAddons.length > 0 ? ' + إضافات' : '';
+                document.getElementById('sidebar-total').textContent = totalText + addonNote;
+            } else if (selectedAddons.length > 0) {
+                document.getElementById('sidebar-total').textContent = 'سعر حسب الطلب';
+            } else {
+                document.getElementById('sidebar-total').textContent = '0 OMR';
+            }
+            
+            // إضافة الاقتراحات والخصومات قبل المجموع
+            const summaryContainer = document.getElementById('booking-summary');
+            if (pricing.suggestions.length > 0) {
+                summaryContainer.innerHTML += suggestionsHTML;
+            }
+            if (pricing.discounts.length > 0) {
+                summaryContainer.innerHTML += discountHTML;
+            }
+        }
+
+        function applySuggestion(suggestionType) {
+            if (suggestionType === 'interactive_page') {
+                // تحديد خانة الصفحة التفاعلية
+                const interactiveCheckbox = document.querySelector('.addon-checkbox[data-addon="صفحة تفاعلية HTML"]');
+                if (interactiveCheckbox && !interactiveCheckbox.checked) {
+                    interactiveCheckbox.checked = true;
+                    updateAddonSelection();
+                    showToast('✅ تم إضافة الصفحة التفاعلية مع خصم 5%!');
+                }
+            } else if (suggestionType === 'photography_combo') {
+                // تحديد خانة التصوير الاحترافي
+                const photographyCheckbox = document.querySelector('.addon-checkbox[data-addon="تصوير احترافي"]');
+                if (photographyCheckbox && !photographyCheckbox.checked) {
+                    photographyCheckbox.checked = true;
+                    updateAddonSelection();
+                    showToast('✅ تم إضافة التصوير الاحترافي مع خصم 10%!');
+                }
+            }
+        }
+
+        function generateWhatsAppMessage() {
+            const customerName = document.getElementById('customer-name').value || 'عميل';
+            const customerPhone = document.getElementById('customer-phone').value;
+            
+            let message = `مرحبًا، أنا ${customerName}`;
+            if (customerPhone) message += ` - ${customerPhone}`;
+            
+            if (selectedDevices.length > 0) {
+                message += ` أرغب في استئجار:\n\n`;
+            } else {
+                message += ` أرغب في الاستفسار عن:\n\n`;
+            }
+            
+            // الأجهزة
+            if (selectedDevices.length > 0) {
+                message += "📱 الأجهزة:\n";
+                selectedDevices.forEach(device => {
+                    message += `• ${device.name} - الكمية: ${device.quantity} - المدة: ${device.days} أيام\n`;
+                });
+                message += "\n";
+            }
+            
+            // الإضافات
+            if (selectedAddons.length > 0) {
+                if (selectedDevices.length > 0) {
+                    message += "🎁 الإضافات المطلوبة (سعر حسب الطلب):\n";
+                } else {
+                    message += "🎁 الخدمات المطلوبة (سعر حسب الطلب):\n";
+                }
+                selectedAddons.forEach(addon => {
+                    message += `• ${addon.name}\n`;
+                });
+                message += "\n";
+            }
+            
+            // تفاصيل الفعالية (فقط إذا تم اختيار أجهزة)
+            if (selectedDevices.length > 0) {
+                const eventType = document.getElementById('event-type').value;
+                const location = document.getElementById('event-location').value;
+                const insideMuscat = document.querySelector('input[name="inside-muscat"]:checked')?.value;
+                const electricity = document.querySelector('input[name="electricity"]:checked')?.value;
+                
+                message += "📋 تفاصيل الفعالية:\n";
+                if (eventType) message += `• النوع: ${eventType}\n`;
+                if (location) message += `• الموقع: ${location}\n`;
+                if (insideMuscat) message += `• داخل مسقط: ${insideMuscat === 'yes' ? 'نعم' : 'لا'}\n`;
+                if (electricity) message += `• الكهرباء: ${electricity === 'yes' ? 'متوفرة' : 'غير متوفرة'}\n`;
+                
+                // التسعير
+                const pricing = calculateSmartPricing();
+                message += "\n💰 التسعير:\n";
+                if (pricing.discounts.length > 0) {
+                    message += `• المجموع قبل الخصم: ${pricing.originalSubtotal.toFixed(2)} OMR\n`;
+                    message += `• إجمالي الخصم: -${pricing.totalDiscount.toFixed(2)} OMR\n`;
+                    message += `• الإجمالي المستحق للأجهزة: ${pricing.finalSubtotal.toFixed(2)} OMR\n`;
+                } else {
+                    message += `• الإجمالي المستحق للأجهزة: ${pricing.finalSubtotal.toFixed(2)} OMR\n`;
+                }
+                
+                // إضافة تفاصيل رسوم التوصيل
+                if (pricing.deliveryFee > 0) {
+                    message += `• رسوم التوصيل (${pricing.totalQuantity} شاشة): ${pricing.deliveryFee} OMR\n`;
+                }
+                if (pricing.extraDistanceFee > 0) {
+                    message += `• رسوم المسافة الإضافية: ${pricing.extraDistanceFee.toFixed(2)} OMR\n`;
+                }
+                
+                // المجموع النهائي
+                const finalTotal = pricing.finalSubtotal + pricing.deliveryFee + pricing.extraDistanceFee;
+                message += `• المجموع النهائي: ${finalTotal.toFixed(2)} OMR\n`;
+                
+                if (selectedAddons.length > 0) {
+                    message += `• الإضافات: سعر حسب الطلب (مع خصم ذكي إضافي)\n`;
+                }
+                
+                // إضافة معلومات مطالبة الخصم الخاص
+                if (specialDiscountActive) {
+                    const discountType = specialDiscountType === 'student' ? 'طالب جامعي' : 'جهة خيرية/غير ربحية';
+                    const discountReason = document.getElementById('discount-reason').value;
+                    message += `\n🎓💝 مطالبة بخصم خاص (${discountType}):\n`;
+                    if (discountReason.trim()) {
+                        message += `• السبب: ${discountReason.trim()}\n`;
+                    }
+                    message += `• يرجى دراسة المطالبة وإعلامي بالقرار\n`;
+                }
+                
+                message += `\n💡 ملاحظة: جميع الأسعار قابلة للتفاوض\n`;
+                
+                message += "\nهل الأجهزة متاحة في هذا التاريخ؟ 🤔";
+            } else {
+                // رسالة للإضافات فقط
+                const notes = document.getElementById('notes').value;
+                if (notes) {
+                    message += `📝 تفاصيل الطلب:\n${notes}\n\n`;
+                }
+                
+                message += "يرجى تزويدي بعرض سعر مخصص لهذه الخدمات 💰\n";
+                message += "وسأكون ممتناً للرد في أقرب فرصة ممكنة 🙏";
+            }
+            
+            return encodeURIComponent(message);
+        }
+
+        function validateForm() {
+            // الحقول الأساسية المطلوبة دائماً
+            const basicRequiredFields = [
+                'customer-name',
+                'customer-phone'
+            ];
+            
+            for (let fieldId of basicRequiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.focus();
+                    showToast(`⚠️ يرجى ملء حقل ${field.previousElementSibling.textContent}`);
+                    return false;
+                }
+            }
+            
+            // التحقق من اختيار الأجهزة أو الإضافات
+            if (selectedDevices.length === 0 && selectedAddons.length === 0) {
+                showToast('⚠️ يرجى اختيار جهاز واحد على الأقل أو إضافة واحدة');
+                return false;
+            }
+            
+            // إذا تم اختيار أجهزة، التحقق من الحقول الإضافية
+            if (selectedDevices.length > 0) {
+                const deviceRequiredFields = [
+                    'event-type',
+                    'event-location'
+                ];
+                
+                for (let fieldId of deviceRequiredFields) {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value.trim()) {
+                        field.focus();
+                        showToast(`⚠️ يرجى ملء حقل ${field.previousElementSibling.textContent}`);
+                        return false;
+                    }
+                }
+                
+                // التحقق من اختيار داخل/خارج مسقط
+                const insideMuscat = document.querySelector('input[name="inside-muscat"]:checked');
+                if (!insideMuscat) {
+                    showToast('⚠️ يرجى تحديد ما إذا كان الموقع داخل مسقط أم لا');
+                    return false;
+                }
+                
+                // التحقق من توفر الكهرباء
+                const electricity = document.querySelector('input[name="electricity"]:checked');
+                if (!electricity) {
+                    showToast('⚠️ يرجى تحديد ما إذا كانت الكهرباء متوفرة أم لا');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        async function submitViaEmail() {
+            if (!validateForm()) return;
+            
+            const submitBtn = document.getElementById('email-submit-btn');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            try {
+                const pricing = calculateSmartPricing();
+                
+                // حفظ الحجز في قاعدة البيانات المحلية
+                await saveBookingToDatabase(pricing);
+                
+                const formData = new FormData();
+                formData.append('customer_name', document.getElementById('customer-name').value);
+                formData.append('customer_email', document.getElementById('customer-email').value);
+                formData.append('customer_phone', document.getElementById('customer-phone').value);
+                formData.append('event_type', document.getElementById('event-type').value);
+                formData.append('event_date', document.getElementById('event-date').value);
+                formData.append('event_location', document.getElementById('event-location').value);
+                formData.append('event_environment', document.getElementById('event-environment').value);
+                formData.append('inside_muscat', document.querySelector('input[name="inside-muscat"]:checked')?.value || '');
+                formData.append('distance_km', document.getElementById('distance-km').value);
+                formData.append('electricity_available', document.querySelector('input[name="electricity"]:checked')?.value || '');
+                formData.append('selected_devices', JSON.stringify(selectedDevices));
+                formData.append('selected_addons', JSON.stringify(selectedAddons));
+                formData.append('original_price', pricing.originalSubtotal.toFixed(2));
+                formData.append('total_discount', pricing.totalDiscount.toFixed(2));
+                formData.append('final_price', pricing.finalSubtotal.toFixed(2));
+                formData.append('notes', document.getElementById('notes').value);
+                
+                const response = await fetch('https://formspree.io/f/mdkpqkgy', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showSuccessMessage('تم إرسال طلبك بنجاح عبر الإيميل! 📧');
+                    resetForm();
+                } else {
+                    throw new Error('فشل في الإرسال');
+                }
+            } catch (error) {
+                showToast('❌ حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى');
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalContent;
+        }
+
+        async function submitViaWhatsApp() {
+            if (!validateForm()) return;
+            
+            try {
+                const pricing = calculateSmartPricing();
+                
+                // حفظ الحجز في قاعدة البيانات المحلية
+                await saveBookingToDatabase(pricing);
+                
+                const message = generateWhatsAppMessage();
+                const whatsappUrl = `https://wa.me/96898567383?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+                
+                showSuccessMessage('تم توجيهك إلى الواتساب! 💬');
+                resetForm();
+            } catch (error) {
+                showToast('❌ حدث خطأ في حفظ الحجز. يرجى المحاولة مرة أخرى');
+            }
+        }
+
+        async function saveBookingToDatabase(pricing) {
+            if (!window.dataSdk) return;
+            
+            if (bookings.length >= 999) {
+                showToast('⚠️ تم الوصول للحد الأقصى من الحجوزات (999). يرجى حذف بعض الحجوزات القديمة أولاً.');
+                return;
+            }
+            
+            const bookingData = {
+                id: `booking_${Date.now()}`,
+                customer_name: document.getElementById('customer-name').value,
+                customer_email: document.getElementById('customer-email').value || '',
+                customer_phone: document.getElementById('customer-phone').value,
+                event_type: document.getElementById('event-type').value || '',
+                event_location: document.getElementById('event-location').value || '',
+                inside_muscat: document.querySelector('input[name="inside-muscat"]:checked')?.value || '',
+                electricity_available: document.querySelector('input[name="electricity"]:checked"]')?.value || '',
+                distance_km: document.getElementById('distance-km').value || '0',
+                selected_devices: JSON.stringify(selectedDevices),
+                selected_addons: JSON.stringify(selectedAddons),
+                original_price: pricing.originalSubtotal.toFixed(2),
+                total_discount: pricing.totalDiscount.toFixed(2),
+                final_price: (pricing.finalSubtotal + pricing.deliveryFee + pricing.extraDistanceFee).toFixed(2),
+                delivery_fee: pricing.deliveryFee.toString(),
+                extra_distance_fee: pricing.extraDistanceFee.toFixed(2),
+                total_quantity: pricing.totalQuantity.toString(),
+                notes: document.getElementById('notes').value || '',
+                special_discount_type: specialDiscountType || '',
+                special_discount_active: specialDiscountActive.toString(),
+                discount_reason: document.getElementById('discount-reason')?.value || '',
+                created_at: new Date().toISOString(),
+                status: 'مرسل'
+            };
+            
+            const result = await window.dataSdk.create(bookingData);
+            if (!result.isOk) {
+                throw new Error('فشل في حفظ الحجز');
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            successDiv.innerHTML = `
+                <div class="bg-white rounded-3xl p-8 max-w-md mx-4 text-center">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h3 class="text-2xl font-bold mb-4 text-green-600">نجح الإرسال!</h3>
+                    <p class="text-gray-600 mb-6">${message}</p>
+                    <p class="text-sm text-gray-500 mb-6">سنراجع طلبك ونعود إليك بالتأكيد وخيارات الدفع خلال ساعات العمل.</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="bg-purple-600 text-white px-6 py-3 rounded-full font-bold hover:bg-purple-700 transition-all">
+                        حسناً
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(successDiv);
+        }
+
+        function resetForm() {
+            document.getElementById('booking-form').reset();
+            selectedDevices = [];
+            selectedAddons = [];
+            specialDiscountType = null;
+            specialDiscountActive = false;
+            updateBookingSummary();
+            
+            // إلغاء تحديد جميع الخانات
+            document.querySelectorAll('.device-checkbox, .addon-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.device-quantity').forEach(input => input.value = 0);
+            document.querySelectorAll('.device-days').forEach(input => input.value = 1);
+            
+            // إلغاء تحديد مطالبات الخصم الخاصة
+            document.getElementById('student-discount').checked = false;
+            document.getElementById('charity-discount').checked = false;
+            document.getElementById('special-discount-request').classList.add('hidden');
+            document.getElementById('discount-reason').value = '';
+            
+            // إخفاء الحقول الاختيارية
+            document.getElementById('distance-field').classList.add('hidden');
+            document.getElementById('battery-recommendation').classList.add('hidden');
+        }
+
+        function updateBookingsCount() {
+            const countElement = document.getElementById('bookings-count');
+            if (countElement) {
+                countElement.textContent = bookings.length;
+            }
+        }
+
+        function toggleBookingHistory() {
+            const historyDiv = document.getElementById('booking-history');
+            const toggleBtn = document.getElementById('history-toggle-btn');
+            
+            if (historyDiv.classList.contains('hidden')) {
+                historyDiv.classList.remove('hidden');
+                toggleBtn.textContent = `إخفاء سجل الحجوزات 📋 (${bookings.length})`;
+                renderBookingHistory();
+            } else {
+                historyDiv.classList.add('hidden');
+                toggleBtn.innerHTML = `عرض سجل الحجوزات السابقة 📋 (<span id="bookings-count">${bookings.length}</span>)`;
+            }
+        }
+
+        function renderBookingHistory() {
+            const bookingsList = document.getElementById('bookings-list');
+            if (!bookingsList) return;
+            
+            if (bookings.length === 0) {
+                bookingsList.innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <div class="text-4xl mb-2">📋</div>
+                        <p>لا توجد حجوزات سابقة</p>
+                        <p class="text-sm mt-2">ستظهر حجوزاتك هنا بعد إرسال أول طلب</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // ترتيب الحجوزات حسب التاريخ (الأحدث أولاً)
+            const sortedBookings = [...bookings].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            bookingsList.innerHTML = sortedBookings.map(booking => {
+                const createdDate = new Date(booking.created_at);
+                const formattedDate = createdDate.toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let devicesInfo = '';
+                try {
+                    const devices = JSON.parse(booking.selected_devices || '[]');
+                    devicesInfo = devices.map(d => `${d.name} (${d.quantity}×${d.days} أيام)`).join('، ');
+                } catch (e) {
+                    devicesInfo = 'غير محدد';
+                }
+                
+                let addonsInfo = '';
+                try {
+                    const addons = JSON.parse(booking.selected_addons || '[]');
+                    addonsInfo = addons.length > 0 ? addons.map(a => a.name).join('، ') : 'لا توجد إضافات';
+                } catch (e) {
+                    addonsInfo = 'لا توجد إضافات';
+                }
+                
+                return `
+                    <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold text-lg text-purple-900">${booking.customer_name}</h4>
+                                <p class="text-sm text-gray-500">${formattedDate}</p>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-lg font-bold text-purple-600">${booking.final_price} OMR</div>
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${booking.status}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-600 mb-1"><strong>الجوال:</strong> ${booking.customer_phone}</p>
+                                ${booking.customer_email ? `<p class="text-gray-600 mb-1"><strong>الإيميل:</strong> ${booking.customer_email}</p>` : ''}
+                                ${booking.event_type ? `<p class="text-gray-600 mb-1"><strong>نوع الفعالية:</strong> ${booking.event_type}</p>` : ''}
+                                ${booking.event_location ? `<p class="text-gray-600 mb-1"><strong>الموقع:</strong> ${booking.event_location}</p>` : ''}
+                            </div>
+                            <div>
+                                <p class="text-gray-600 mb-1"><strong>الأجهزة:</strong> ${devicesInfo}</p>
+                                <p class="text-gray-600 mb-1"><strong>الإضافات:</strong> ${addonsInfo}</p>
+                                ${booking.total_discount && parseFloat(booking.total_discount) > 0 ? `<p class="text-green-600 font-semibold"><strong>خصم:</strong> -${booking.total_discount} OMR</p>` : ''}
+                                ${booking.special_discount_active === 'true' ? `<p class="text-orange-600 font-semibold"><strong>مطالبة خصم:</strong> ${booking.special_discount_type === 'student' ? '🎓 طالب' : '💝 خيرية'}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${booking.notes ? `
+                            <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-700"><strong>ملاحظات:</strong> ${booking.notes}</p>
+                            </div>
+                        ` : ''}
+                        
+                        ${booking.discount_reason ? `
+                            <div class="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                <p class="text-sm text-orange-800"><strong>سبب مطالبة الخصم:</strong> ${booking.discount_reason}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="mt-3 flex gap-2">
+                            <button onclick="duplicateBooking('${booking.__backendId}')" class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-600 transition-all">
+                                تكرار الطلب 🔄
+                            </button>
+                            <button onclick="deleteBooking('${booking.__backendId}')" class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-red-600 transition-all">
+                                حذف 🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteBooking(backendId) {
+            if (!window.dataSdk) return;
+            
+            const booking = bookings.find(b => b.__backendId === backendId);
+            if (!booking) return;
+            
+            // تأكيد الحذف
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            confirmDiv.innerHTML = `
+                <div class="bg-white rounded-3xl p-6 max-w-md mx-4 text-center">
+                    <div class="text-4xl mb-4">🗑️</div>
+                    <h3 class="text-xl font-bold mb-4 text-red-600">تأكيد الحذف</h3>
+                    <p class="text-gray-600 mb-6">هل أنت متأكد من حذف حجز "${booking.customer_name}"؟</p>
+                    <div class="flex gap-3 justify-center">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-full font-bold hover:bg-gray-400 transition-all">
+                            إلغاء
+                        </button>
+                        <button onclick="confirmDeleteBooking('${backendId}'); this.parentElement.parentElement.parentElement.remove();" class="bg-red-500 text-white px-4 py-2 rounded-full font-bold hover:bg-red-600 transition-all">
+                            حذف نهائياً
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmDiv);
+        }
+
+        async function confirmDeleteBooking(backendId) {
+            if (!window.dataSdk) return;
+            
+            const booking = bookings.find(b => b.__backendId === backendId);
+            if (!booking) return;
+            
+            const result = await window.dataSdk.delete(booking);
+            if (result.isOk) {
+                showToast('✅ تم حذف الحجز بنجاح');
+            } else {
+                showToast('❌ فشل في حذف الحجز');
+            }
+        }
+
+        function duplicateBooking(backendId) {
+            const booking = bookings.find(b => b.__backendId === backendId);
+            if (!booking) return;
+            
+            try {
+                // ملء النموذج بالبيانات المحفوظة
+                document.getElementById('customer-name').value = booking.customer_name;
+                document.getElementById('customer-email').value = booking.customer_email || '';
+                document.getElementById('customer-phone').value = booking.customer_phone;
+                document.getElementById('event-type').value = booking.event_type || '';
+                document.getElementById('event-location').value = booking.event_location || '';
+                document.getElementById('notes').value = booking.notes || '';
+                
+                // تحديد خيارات الراديو
+                if (booking.inside_muscat) {
+                    const insideMuscatRadio = document.getElementById(booking.inside_muscat === 'yes' ? 'inside-muscat-yes' : 'inside-muscat-no');
+                    if (insideMuscatRadio) insideMuscatRadio.checked = true;
+                }
+                
+                if (booking.electricity_available) {
+                    const electricityRadio = document.getElementById(booking.electricity_available === 'yes' ? 'electricity-yes' : 'electricity-no');
+                    if (electricityRadio) electricityRadio.checked = true;
+                }
+                
+                if (booking.distance_km) {
+                    document.getElementById('distance-km').value = booking.distance_km;
+                }
+                
+                // استعادة الأجهزة المختارة
+                const devices = JSON.parse(booking.selected_devices || '[]');
+                devices.forEach(device => {
+                    const checkbox = document.querySelector(`.device-checkbox[data-device="${device.name}"]`);
+                    const quantityInput = document.querySelector(`.device-quantity[data-device="${device.name}"]`);
+                    const daysInput = document.querySelector(`.device-days[data-device="${device.name}"]`);
+                    
+                    if (checkbox) checkbox.checked = true;
+                    if (quantityInput) quantityInput.value = device.quantity;
+                    if (daysInput) daysInput.value = device.days;
+                });
+                
+                // استعادة الإضافات المختارة
+                const addons = JSON.parse(booking.selected_addons || '[]');
+                addons.forEach(addon => {
+                    const checkbox = document.querySelector(`.addon-checkbox[data-addon="${addon.name}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                
+                // استعادة مطالبة الخصم الخاص
+                if (booking.special_discount_active === 'true') {
+                    const studentCheckbox = document.getElementById('student-discount');
+                    const charityCheckbox = document.getElementById('charity-discount');
+                    const discountReasonTextarea = document.getElementById('discount-reason');
+                    
+                    if (booking.special_discount_type === 'student') {
+                        studentCheckbox.checked = true;
+                    } else if (booking.special_discount_type === 'charity') {
+                        charityCheckbox.checked = true;
+                    }
+                    
+                    if (booking.discount_reason) {
+                        discountReasonTextarea.value = booking.discount_reason;
+                    }
+                    
+                    handleSpecialDiscountRequest();
+                }
+                
+                // تحديث التحديدات والملخص
+                updateDeviceSelection();
+                updateAddonSelection();
+                
+                // إغلاق سجل الحجوزات والتمرير للنموذج
+                toggleBookingHistory();
+                showToast('✅ تم تكرار الطلب بنجاح! راجع البيانات وأرسل');
+                
+            } catch (error) {
+                showToast('❌ حدث خطأ في تكرار الطلب');
+            }
+        }
+
+        // Floating Chat Functions
+        let isFloatingChatOpen = false;
+
+        function toggleFloatingChat() {
+            const chatWindow = document.getElementById('floating-chat-window');
+            const chatBtn = document.getElementById('floating-chat-btn');
+            
+            if (isFloatingChatOpen) {
+                chatWindow.classList.add('hidden');
+                chatBtn.style.transform = 'scale(1)';
+                isFloatingChatOpen = false;
+            } else {
+                chatWindow.classList.remove('hidden');
+                chatBtn.style.transform = 'scale(0.9)';
+                isFloatingChatOpen = true;
+                
+                // التركيز على حقل الإدخال
+                setTimeout(() => {
+                    document.getElementById('floating-chat-input').focus();
+                }, 100);
+            }
+        }
+
+        function askFloatingQuestion(question) {
+            addFloatingChatMessage(question, 'user');
+            
+            setTimeout(() => {
+                const response = smartResponses[question] || analyzeMessage(question);
+                addFloatingChatMessage(response.response || response.text, 'assistant', response.showWhatsAppContact);
+                
+                // إضافة أزرار الاقتراحات
+                if (response.suggestions && response.suggestions.length > 0) {
+                    addFloatingSuggestionButtons(response.suggestions);
+                }
+            }, 1000);
+        }
+
+        function sendFloatingChatMessage() {
+            const input = document.getElementById('floating-chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addFloatingChatMessage(message, 'user');
+            input.value = '';
+            
+            // تحليل ذكي للرسالة
+            setTimeout(() => {
+                const response = analyzeMessage(message);
+                addFloatingChatMessage(response.text, 'assistant', response.showWhatsAppContact);
+                
+                if (response.suggestions && response.suggestions.length > 0) {
+                    addFloatingSuggestionButtons(response.suggestions);
+                }
+            }, 1500);
+        }
+
+        function handleFloatingChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendFloatingChatMessage();
+            }
+        }
+
+        function addFloatingChatMessage(message, sender, showWhatsAppContact = false) {
+            const messagesContainer = document.getElementById('floating-chat-messages');
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                messageDiv.className = 'flex gap-2 justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-purple-600 text-white rounded-2xl rounded-tr-sm p-3 max-w-xs">
+                        <p class="text-sm">${message}</p>
+                    </div>
+                    <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">👤</div>
+                `;
+            } else {
+                messageDiv.className = 'flex gap-2';
+                let messageContent = `
+                    <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs">🤖</div>
+                    <div class="bg-purple-50 rounded-2xl rounded-tl-sm p-3 max-w-xs">
+                        <p class="text-sm whitespace-pre-line">${message}</p>
+                `;
+                
+                // إضافة زر الواتساب فقط بعد الحصول على رقم الهاتف
+                if (showWhatsAppContact && userPhone && userPhone !== 'غير محدد') {
+                    const contact = getRandomWhatsAppContact();
+                    messageContent += `
+                        <div class="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="text-center">
+                                <div class="text-xs font-bold text-green-800 mb-1">💬 تواصل معنا</div>
+                                <div class="text-xs text-green-700 mb-2">${contact.name} متوفر لمساعدتك</div>
+                                <a href="https://wa.me/${contact.number}" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold hover:bg-green-600 transition-all">
+                                    تواصل مع ${contact.name}
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // إعادة تعيين حالة المحادثة بعد إظهار زر الواتساب
+                    setTimeout(() => {
+                        resetChatState();
+                    }, 1000);
+                }
+                
+                messageContent += `</div>`;
+                messageDiv.innerHTML = messageContent;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addFloatingSuggestionButtons(suggestions) {
+            const messagesContainer = document.getElementById('floating-chat-messages');
+            const suggestionsDiv = document.createElement('div');
+            suggestionsDiv.className = 'flex gap-2';
+            
+            const buttonsHTML = suggestions.map(suggestion => 
+                `<button onclick="handleFloatingSuggestion('${suggestion}')" class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs hover:bg-blue-600 transition-all">${suggestion}</button>`
+            ).join('');
+            
+            suggestionsDiv.innerHTML = `
+                <div class="w-6 h-6"></div>
+                <div class="flex flex-wrap gap-1 mt-2">
+                    ${buttonsHTML}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(suggestionsDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleFloatingSuggestion(suggestion) {
+            if (suggestion.includes('نعم، أريد معرفة المزيد عن Moment+')) {
+                addFloatingChatMessage('نعم، أريد معرفة المزيد عن Moment+', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('نعم، أريد معرفة المزيد عن Moment+');
+                    addFloatingChatMessage(response.text, 'assistant', response.showWhatsAppContact);
+                }, 500);
+            } else if (suggestion.includes('لا، فقط Event+')) {
+                addFloatingChatMessage('لا، فقط Event+', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('لا، فقط Event+');
+                    addFloatingChatMessage(response.text, 'assistant', response.showWhatsAppContact);
+                }, 500);
+            } else if (suggestion.includes('نعم، أريد معرفة المزيد')) {
+                addFloatingChatMessage('نعم، أريد معرفة المزيد', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('نعم، أريد معرفة المزيد');
+                    addFloatingChatMessage(response.text, 'assistant');
+                }, 500);
+            } else if (suggestion.includes('لا، شكراً')) {
+                addFloatingChatMessage('لا، شكراً', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('لا، شكراً');
+                    addFloatingChatMessage(response.text, 'assistant');
+                    if (response.suggestions && response.suggestions.length > 0) {
+                        addFloatingSuggestionButtons(response.suggestions);
+                    }
+                }, 500);
+            } else if (suggestion.includes('انتقل لنظام الحجز')) {
+                toggleFloatingChat(); // إغلاق المحادثة العائمة
+                scrollToSection('booking');
+                addFloatingChatMessage('تم توجيهك لنظام الحجز! 🚀', 'assistant');
+            } else if (suggestion.includes('شكراً لكم')) {
+                toggleFloatingChat(); // إغلاق المحادثة العائمة
+                scrollToSection('booking');
+                addFloatingChatMessage('تم توجيهك لنظام الحجز! 🚀', 'assistant');
+            } else if (suggestion.includes('أضف الشاشة المتنقلة')) {
+                addDeviceToSelection('هوية تك – الشاشة المتنقلة الذكية', 45, 400);
+                addFloatingChatMessage('تم إضافة الشاشة المتنقلة الذكية لطلبك! ✅', 'assistant');
+            } else if (suggestion.includes('أضف التصوير')) {
+                const photographyCheckbox = document.querySelector('.addon-checkbox[data-addon="تصوير احترافي"]');
+                if (photographyCheckbox) {
+                    photographyCheckbox.checked = true;
+                    updateAddonSelection();
+                    addFloatingChatMessage('تم إضافة التصوير الاحترافي لطلبك! 📸', 'assistant');
+                }
+            } else if (suggestion.includes('أريد رؤية أعمالكم')) {
+                window.open('https://mnt.wsal.ai', '_blank');
+                addFloatingChatMessage('تم فتح بطاقتنا التعريفية! شاهد أعمالنا وإبداعاتنا 🎬✨', 'assistant');
+            } else if (suggestion.includes('تواصل للتوثيق الاحترافي')) {
+                const message = encodeURIComponent('مرحباً، أرغب في الاستفسار عن خدمات التوثيق الاحترافي والتصوير لفعاليتي 📸\n\nيرجى تزويدي بتفاصيل الخدمات والأسعار');
+                const whatsappUrl = `https://wa.me/96898567383?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+                addFloatingChatMessage('تم توجيهك للواتساب للاستفسار عن التوثيق الاحترافي! 💬', 'assistant');
+            } else if (suggestion.includes('أضف براندنغ')) {
+                const brandingCheckbox = document.querySelector('.addon-checkbox[data-addon="براندنغ الأجهزة"]');
+                if (brandingCheckbox) {
+                    brandingCheckbox.checked = true;
+                    updateAddonSelection();
+                    addFloatingChatMessage('تم إضافة براندنغ الأجهزة لطلبك! 🎨', 'assistant');
+                }
+            } else if (suggestion.includes('باقة Premium Complete')) {
+                selectPremiumCompletePackage();
+                addFloatingChatMessage('تم اختيار باقة Premium Complete! اختر شاشتين الآن 🎯', 'assistant');
+            } else if (suggestion.includes('تواصل مباشر')) {
+                toggleFloatingChat(); // إغلاق المحادثة العائمة
+                scrollToSection('contact');
+                addFloatingChatMessage('تم توجيهك لقسم التواصل! 📞', 'assistant');
+            } else if (suggestion.includes('احجز استشارة')) {
+                const message = encodeURIComponent('مرحباً، أرغب في حجز استشارة مجانية مع فريق EventPlus لمناقشة احتياجات فعاليتي 🎯');
+                const whatsappUrl = `https://wa.me/96898567383?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+                addFloatingChatMessage('تم توجيهك للواتساب لحجز استشارة مجانية! 💬', 'assistant');
+            } else {
+                toggleFloatingChat(); // إغلاق المحادثة العائمة
+                scrollToSection('booking');
+                addFloatingChatMessage('تم توجيهك لقسم الحجز! 🚀', 'assistant');
+            }
+        }
+
+        // Smart Assistant Functions
+        const smartResponses = {
+            'ما هو البراندنغ؟': {
+                response: 'البراندنغ هو تخصيص الأجهزة بهوية شركتك أو فعاليتك! 🎨\n\nيشمل:\n• إضافة الشعار على الجهاز\n• ألوان مخصصة حسب هويتك\n• تصميم واجهة مطابقة لعلامتك التجارية\n• رسائل ترحيبية مخصصة\n\nالسعر: 15-35 OMR حسب التعقيد',
+                suggestions: ['أضف براندنغ الأجهزة لطلبك', 'اطلب عرض سعر للبراندنغ']
+            },
+            'أحتاج شاشة لمعرض': {
+                response: 'ممتاز! للمعارض أنصحك بـ: 📺\n\n🏆 الأفضل: "هوية تك – الشاشة المتنقلة الذكية"\n• تعمل بالبطارية 8 ساعات\n• تدعم اللمس و NFC\n• مثالية للمعارض المتنقلة\n\n💡 إضافة مقترحة:\n• صفحة تفاعلية لجمع بيانات الزوار\n• براندنغ بهوية شركتك\n• تصوير احترافي للمعرض',
+                suggestions: ['أضف الشاشة المتنقلة لطلبك', 'اطلب باقة المعارض الكاملة']
+            },
+            'ما الفرق بين الأجهزة؟': {
+                response: 'إليك الفروقات الأساسية: 🔍\n\n📺 هوية تك (شاشة الهوية):\n• للعرض الثابت فقط\n• تحتاج كهرباء دائمة\n• مثالية للمكاتب والمداخل\n\n🔋 هوية تك (المتنقلة):\n• تعمل بالبطارية 8 ساعات\n• تدعم NFC واللمس\n• مثالية للفعاليات الخارجية\n\n👆 لمسة تك (الكشك التفاعلي):\n• تصميم عمودي أنيق\n• مخصص لجمع البيانات\n• مثالي للتسجيل والاستبيانات',
+                suggestions: ['قارن الأسعار', 'احجز استشارة مجانية']
+            },
+            'كم تكلفة التصوير؟': {
+                response: 'تكلفة التصوير الاحترافي: 📸\n\n💰 الأسعار:\n• تصوير فوتوغرافي: 65-90 OMR\n• تصوير فيديو: 80-120 OMR\n• ملخص فيديو للفعالية: +30 OMR\n\n🎁 المشمول:\n• مصور محترف\n• معدات عالية الجودة\n• تحرير أساسي\n• تسليم خلال 48 ساعة\n\n💡 نصيحة: إذا كانت فعاليتك كبيرة (50+ شخص) أنصحك بشدة بالتصوير الاحترافي!',
+                suggestions: ['أضف التصوير لطلبك', 'اطلب عرض تصوير مخصص']
+            }
+        };
+
+        function askQuickQuestion(question) {
+            addChatMessage(question, 'user');
+            
+            setTimeout(() => {
+                const response = smartResponses[question] || analyzeMessage(question);
+                addChatMessage(response.response || response.text, 'assistant', response.showWhatsAppContact);
+                
+                // إضافة أزرار الاقتراحات
+                if (response.suggestions && response.suggestions.length > 0) {
+                    addSuggestionButtons(response.suggestions);
+                }
+            }, 1000);
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // تحليل ذكي للرسالة
+            setTimeout(() => {
+                const response = analyzeMessage(message);
+                addChatMessage(response.text, 'assistant', response.showWhatsAppContact);
+                
+                if (response.suggestions && response.suggestions.length > 0) {
+                    addSuggestionButtons(response.suggestions);
+                }
+            }, 1500);
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function addChatMessage(message, sender, showWhatsAppContact = false) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                messageDiv.className = 'flex gap-3 justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-purple-600 text-white rounded-2xl rounded-tr-sm p-4 max-w-md">
+                        <p class="text-sm">${message}</p>
+                    </div>
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm">👤</div>
+                `;
+            } else {
+                messageDiv.className = 'flex gap-3';
+                let messageContent = `
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">🤖</div>
+                    <div class="bg-purple-50 rounded-2xl rounded-tl-sm p-4 max-w-md">
+                        <p class="text-sm whitespace-pre-line">${message}</p>
+                `;
+                
+                // إضافة زر الواتساب فقط بعد الحصول على رقم الهاتف
+                if (showWhatsAppContact && userPhone && userPhone !== 'غير محدد') {
+                    const contact = getRandomWhatsAppContact();
+                    messageContent += `
+                        <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="text-center">
+                                <div class="text-sm font-bold text-green-800 mb-2">💬 تواصل معنا عبر الواتساب</div>
+                                <div class="text-xs text-green-700 mb-3">${contact.name} متوفر لمساعدتك</div>
+                                <a href="https://wa.me/${contact.number}" target="_blank" rel="noopener noreferrer" class="inline-block bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-green-600 transition-all">
+                                    تواصل مع ${contact.name} 💬
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // إعادة تعيين حالة المحادثة بعد إظهار زر الواتساب
+                    setTimeout(() => {
+                        resetChatState();
+                    }, 1000);
+                }
+                
+                messageContent += `</div>`;
+                messageDiv.innerHTML = messageContent;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // دالة إعادة تعيين حالة المحادثة (للاستخدام الداخلي فقط)
+        function resetChatState() {
+            // لا نعيد تعيين chatState هنا لأننا نريد الاحتفاظ بحالة asking_moment
+            userMessage = '';
+            // لا نعيد تعيين userPhone لأننا نحتاجه لزر الواتساب
+            hasReceivedDefaultResponse = false;
+            // لا نعيد تعيين hasShownExpertMessage و expertMessageShown لضمان عدم التكرار
+        }
+
+        // دالة إعادة تعيين كاملة للجلسة الجديدة (يمكن استخدامها عند الحاجة)
+        function resetFullChatSession() {
+            chatState = 'normal';
+            userMessage = '';
+            userPhone = '';
+            hasReceivedDefaultResponse = false;
+            conversationHistory = [];
+            messageCount = 0;
+            hasShownExpertMessage = false;
+            expertMessageShown = false;
+        }
+
+        function addSuggestionButtons(suggestions) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const suggestionsDiv = document.createElement('div');
+            suggestionsDiv.className = 'flex gap-3';
+            
+            const buttonsHTML = suggestions.map(suggestion => 
+                `<button onclick="handleSuggestion('${suggestion}')" class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-600 transition-all">${suggestion}</button>`
+            ).join('');
+            
+            suggestionsDiv.innerHTML = `
+                <div class="w-8 h-8"></div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    ${buttonsHTML}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(suggestionsDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // متغيرات لتتبع حالة المحادثة
+        let chatState = 'normal'; // normal, waiting_phone, contact_ready, asking_moment, completed
+        let userMessage = '';
+        let userPhone = '';
+        let hasReceivedDefaultResponse = false; // تتبع ما إذا تم عرض الرد الافتراضي
+        let conversationHistory = []; // تتبع تاريخ المحادثة
+        let messageCount = 0; // عداد الرسائل
+        let hasShownExpertMessage = false; // تتبع عرض رسالة الخبراء (مرة واحدة فقط)
+        let expertMessageShown = false; // حماية إضافية لمنع تكرار رسالة الخبراء
+
+        function analyzeMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            messageCount++;
+            
+            // إضافة الرسالة لتاريخ المحادثة
+            conversationHistory.push({
+                message: message,
+                timestamp: new Date().toISOString(),
+                messageNumber: messageCount
+            });
+            
+            // إذا كنا في انتظار رقم الهاتف
+            if (chatState === 'waiting_phone') {
+                // التحقق من أن الرسالة تحتوي على رقم هاتف عُماني صحيح
+                const phoneRegex = /(\+968|968|00968)?\s*[79]\d{7}|^[79]\d{7}$/;
+                if (phoneRegex.test(message.replace(/\s/g, ''))) {
+                    userPhone = message.trim();
+                    chatState = 'contact_ready';
+                    
+                    // إرسال البيانات إلى Formspree مع تاريخ المحادثة الكامل
+                    submitChatToFormspree(conversationHistory, userPhone);
+                    
+                    return {
+                        text: 'ممتاز! شكراً لك 😊\n\nسأوصلك الآن مع أحد خبرائنا عبر الواتساب للمساعدة الشخصية 💬\n\nسيكون معه تفاصيل محادثتنا وسيقدر يساعدك بشكل أفضل! 🎯',
+                        showWhatsAppContact: true
+                    };
+                } else {
+                    return {
+                        text: 'يرجى إدخال رقم هاتف عُماني صحيح 📱\n\nمثال: 98567383 أو +968 98567383',
+                        suggestions: []
+                    };
+                }
+            }
+            
+            // إذا كنا في مرحلة جاهزية التواصل (بعد عرض زر الواتساب)
+            if (chatState === 'contact_ready') {
+                chatState = 'asking_moment';
+                return {
+                    text: 'بالمناسبة، هل أنت مهتم بخدمات مجموعة Moment+ الأخرى؟ 🎬🤖\n\n🎪 Event+ للفعاليات والترفيه (الخدمة الحالية)\n🤖 Moment AI للتقنية والأتمتة الذكية\n🎬 Moment Production للإنتاج الفني\n\nهل تريد معرفة المزيد عن خدمات المجموعة الأخرى؟',
+                    suggestions: ['نعم، أريد معرفة المزيد عن Moment+', 'لا، فقط Event+']
+                };
+            }
+            
+            // إذا كنا في مرحلة السؤال عن Moment+
+            if (chatState === 'asking_moment') {
+                if (lowerMessage.includes('نعم') || lowerMessage.includes('أريد') || lowerMessage.includes('مهتم')) {
+                    chatState = 'completed';
+                    return {
+                        text: 'رائع! 🎬 مجموعة Moment+ تضم خدمات متنوعة:\n\n🎪 Event+ للفعاليات والترفيه\n🤖 Moment AI للتقنية والأتمتة الذكية\n🎬 Moment Production للإنتاج الفني\n\nسيتواصل معك خبيرنا عبر الواتساب ويقدم لك معلومات شاملة عن جميع خدمات المجموعة!\n\nستحصل على استشارة متكاملة تغطي كل احتياجاتك 🎯',
+                        showWhatsAppContact: true
+                    };
+                } else {
+                    chatState = 'completed';
+                    return {
+                        text: 'تمام! سيتواصل معك خبيرنا عبر الواتساب للمساعدة في احتياجات Event+ فقط 👍\n\nسيكون معه تفاصيل محادثتنا وسيقدم لك أفضل الحلول! 🎯',
+                        showWhatsAppContact: true
+                    };
+                }
+            }
+            
+            // إذا كانت المحادثة مكتملة، عرض الرسالة الافتراضية مرة أخرى
+            if (chatState === 'completed') {
+                return {
+                    text: 'شكراً لسؤالك! 😊\n\nلأقدم لك أفضل اقتراح، أخبرني:\n• ما نوع فعاليتك؟ (معرض، مؤتمر، تدشين...)\n• كم عدد الحضور المتوقع؟\n• هل الموقع داخلي أم خارجي؟\n\nأو يمكنك اختيار من الأسئلة السريعة أعلاه! 👆\n\nأو استخدم نظام الحجز أدناه مباشرة 🚀',
+                    suggestions: ['معرض تجاري', 'مؤتمر أو ندوة', 'تدشين منتج', 'انتقل لنظام الحجز']
+                };
+            }
+            
+            // الردود على التحيات والمجاملات العامة
+            if (lowerMessage.includes('السلام عليكم') || lowerMessage.includes('سلام عليكم')) {
+                return {
+                    text: 'وعليكم السلام ورحمة الله وبركاته! 🌟\n\nأهلاً وسهلاً بك في EventPlus، أنا عارف مساعدك الذكي 🤖\n\nكيف يمكنني مساعدتك اليوم؟',
+                    suggestions: ['أحتاج شاشة لفعالية', 'أريد معرفة الأسعار', 'ما هي خدماتكم؟']
+                };
+            }
+            
+            if (lowerMessage.includes('مرحبا') || lowerMessage.includes('مرحباً') || lowerMessage.includes('هلا') || 
+                lowerMessage.includes('أهلين') || lowerMessage.includes('هاي') || lowerMessage.includes('hello')) {
+                return {
+                    text: 'أهلاً وسهلاً! مرحباً بك في EventPlus 👋\n\nأنا عارف، مساعدك الذكي المتخصص في حلول العرض والتفاعل 🎯\n\nسعيد بلقائك! كيف يمكنني مساعدتك؟',
+                    suggestions: ['أحتاج شاشة لفعالية', 'أريد معرفة الأسعار', 'ما هي خدماتكم؟']
+                };
+            }
+            
+            if (lowerMessage.includes('كيفك') || lowerMessage.includes('كيف حالك') || lowerMessage.includes('شلونك') || 
+                lowerMessage.includes('كيف الأحوال') || lowerMessage.includes('إيش أخبارك')) {
+                return {
+                    text: 'الحمد لله بخير وعافية! 😊\n\nأنا هنا ومستعد لمساعدتك في كل ما يخص حلول العرض والتفاعل 💪\n\nوأنت كيف حالك؟ أتمنى تكون بأفضل حال! 🌟\n\nإيش اللي يمكنني أساعدك فيه اليوم؟',
+                    suggestions: ['أحتاج شاشة لفعالية', 'أريد معرفة الأسعار', 'ما هي خدماتكم؟']
+                };
+            }
+            
+            if (lowerMessage.includes('شكرا') || lowerMessage.includes('شكراً') || lowerMessage.includes('مشكور') || 
+                lowerMessage.includes('يعطيك العافية') || lowerMessage.includes('الله يعطيك العافية')) {
+                return {
+                    text: 'العفو! 😊 الله يعافيك ويسعدك 🌟\n\nهذا واجبي ومن دواعي سروري مساعدتك! 💙\n\nإذا احتجت أي شيء آخر، أنا هنا دائماً 🤖\n\nهل تحتاج مساعدة في شيء آخر؟',
+                    suggestions: ['نعم أحتاج مساعدة أخرى', 'لا شكراً', 'أريد التواصل مع الفريق']
+                };
+            }
+            
+            if (lowerMessage.includes('بخير') || lowerMessage.includes('الحمد لله') || lowerMessage.includes('تمام') || 
+                lowerMessage.includes('كويس') || lowerMessage.includes('زين')) {
+                return {
+                    text: 'الحمد لله! يسعدني إنك بخير 😊\n\nطيب، خلنا ندخل في الموضوع المهم 💼\n\nإيش نوع الفعالية اللي تخطط لها؟ أو إيش اللي تحتاج مساعدة فيه؟',
+                    suggestions: ['معرض تجاري', 'مؤتمر أو ندوة', 'تدشين منتج', 'فعالية أخرى']
+                };
+            }
+            
+            if (lowerMessage.includes('لا شكراً') || lowerMessage.includes('لا شكرا') || lowerMessage.includes('خلاص') || 
+                lowerMessage.includes('كفاية') || lowerMessage.includes('انتهيت')) {
+                return {
+                    text: 'تمام! 👍\n\nكان من دواعي سروري مساعدتك اليوم 😊\n\nإذا احتجت أي شيء في المستقبل، لا تتردد في التواصل معنا!\n\nEventPlus دائماً في خدمتك 🎯✨',
+                    suggestions: ['شكراً لكم', 'سأتواصل لاحقاً']
+                };
+            }
+            
+            // الردود التقنية والمتخصصة
+            if (lowerMessage.includes('معرض') || lowerMessage.includes('exhibition')) {
+                return {
+                    text: 'رائع! إليك أنواع الشاشات واستخداماتها للمعارض: 🎪\n\n📺 **هوية تك – شاشة الهوية الذكية**\n• للعرض الثابت في المدخل\n• تحتاج كهرباء دائمة\n• مثالية لعرض معلومات الشركة\n\n🔋 **هوية تك – الشاشة المتنقلة الذكية**\n• تعمل بالبطارية 8 ساعات\n• تدعم NFC واللمس\n• مثالية للمعارض الخارجية والتنقل\n\n👆 **لمسة تك – الكشك التفاعلي**\n• تصميم عمودي أنيق\n• مخصص لجمع بيانات الزوار\n• مثالي للتسجيل والاستبيانات\n\n💡 للمعارض أنصح بالشاشة المتنقلة + الكشك التفاعلي!\n\nهل تريد المزيد من التفاصيل؟',
+                    suggestions: ['أضف الشاشة المتنقلة', 'أريد المزيد من التفاصيل']
+                };
+            }
+            
+            if (lowerMessage.includes('مؤتمر') || lowerMessage.includes('conference') || lowerMessage.includes('ندوة')) {
+                return {
+                    text: 'ممتاز! للمؤتمرات أقترح عليك: 🎤\n\n📺 شاشة الهوية الذكية للمدخل\n👆 كشك تفاعلي لتسجيل الحضور\n🎬 فيديو موشن ترحيبي\n📸 تصوير احترافي للجلسات\n\nهذا سيعطي انطباعاً مهنياً رائعاً!\n\nهل تريد المزيد من التفاصيل؟',
+                    suggestions: ['احجز باقة المؤتمرات', 'أريد المزيد من التفاصيل']
+                };
+            }
+            
+            if (lowerMessage.includes('تدشين') || lowerMessage.includes('launch') || lowerMessage.includes('افتتاح')) {
+                return {
+                    text: 'تدشين رائع! 🎉 أقترح عليك:\n\n🎯 باقة Premium Complete:\n• شاشتان للعرض\n• تصوير احترافي + ملخص فيديو\n• براندنغ كامل بهويتك\n• صور مخصصة للشاشات\n\nسيجعل تدشينك لا يُنسى! ✨\n\nهل تريد المزيد من التفاصيل؟',
+                    suggestions: ['احجز باقة Premium Complete', 'أريد المزيد من التفاصيل']
+                };
+            }
+            
+            if (lowerMessage.includes('تصوير') || lowerMessage.includes('photography') || lowerMessage.includes('توثيق')) {
+                return {
+                    text: 'هل لديك فعالية نقدر نوثقها لك بأحلى توثيق؟ 📸✨\n\nنحن جزء من مجموعة Moment+ التي تضم:\n\n🎪 Event+ للفعاليات والترفيه\n🤖 Moment AI للتقنية والأتمتة الذكية\n🎬 Moment Production للإنتاج الفني\n\nجرب تشوف أعمالنا، يمكن نبهرك! 🎬\n\n📇 تعرف أكثر على مجموعتنا عبر بطاقتنا التعريفية:\n🔗 https://mnt.wsal.ai\n\nأو يمكنك إضافة التصوير الاحترافي لطلبك مباشرة! 🎯',
+                    suggestions: ['أضف التصوير لطلبي', 'أريد رؤية أعمالكم', 'تواصل للتوثيق الاحترافي']
+                };
+            }
+            
+            if (lowerMessage.includes('سعر') || lowerMessage.includes('تكلفة') || lowerMessage.includes('كم') || 
+                lowerMessage.includes('أسعار') || lowerMessage.includes('فلوس')) {
+                return {
+                    text: 'بخصوص الأسعار: 💰\n\n📱 الأجهزة: 45-50 OMR/يوم\n🎁 الإضافات: حسب الطلب\n🚚 التوصيل: 15-60 OMR حسب العدد\n\n💡 خصومات ذكية:\n• خصم الأجهزة المتعددة: 10%\n• خصم الفترات الطويلة: حتى 50%\n• خصم الإضافات المتعددة: 8-15%\n\nجميع الأسعار قابلة للتفاوض! 🤝\n\nهل تريد عرض سعر مخصص؟',
+                    suggestions: ['احسب تكلفة طلبك', 'أريد عرض سعر مخصص']
+                };
+            }
+            
+            if (lowerMessage.includes('بطارية') || lowerMessage.includes('كهرباء')) {
+                return {
+                    text: 'بخصوص الكهرباء والبطارية: ⚡\n\n🔋 الشاشة المتنقلة الذكية:\n• تعمل 8 ساعات متواصلة\n• لا تحتاج كهرباء خارجية\n• مثالية للفعاليات الخارجية\n\n⚡ الشاشات الأخرى:\n• تحتاج مصدر كهرباء\n• مثالية للأماكن المغلقة\n\nأي نوع فعاليتك؟ 🤔',
+                    suggestions: ['أحتاج شاشة بطارية', 'فعاليتي في مكان مغلق']
+                };
+            }
+            
+            if (lowerMessage.includes('خدمات') || lowerMessage.includes('ما تقدمون') || lowerMessage.includes('إيش عندكم')) {
+                return {
+                    text: 'خدماتنا في Event+ (جزء من مجموعة Moment+): 🎯\n\n📱 الأجهزة:\n• شاشات ذكية تفاعلية\n• أكشاك تفاعلية\n• شاشات بطارية متنقلة\n\n🎨 الإضافات:\n• براندنغ مخصص\n• صفحات تفاعلية HTML\n• ألعاب تفاعلية\n• تصوير احترافي\n• فيديو موشن\n\n💼 الباقات:\n• Essential Plus\n• Interactive Pro\n• Premium Complete\n\n🌟 مجموعة Moment+ تضم أيضاً:\n• Moment AI للتقنية والأتمتة الذكية\n• Moment Production للإنتاج الفني\n\nأي خدمة تهمك أكثر؟',
+                    suggestions: ['الأجهزة والشاشات', 'الإضافات والتصوير', 'خدمات المجموعة الأخرى']
+                };
+            }
+            
+            // التحقق من طلب المزيد من التفاصيل أو عرض سعر مخصص
+            if (lowerMessage.includes('المزيد من التفاصيل') || lowerMessage.includes('عرض سعر مخصص') || 
+                lowerMessage.includes('تفاصيل') || lowerMessage.includes('مخصص') || 
+                lowerMessage.includes('أريد') || lowerMessage.includes('أحتاج')) {
+                
+                userMessage = message;
+                chatState = 'waiting_phone';
+                
+                return {
+                    text: 'ممتاز! سأحتاج رقم هاتفك لأتواصل معك وأقدم لك عرضاً مخصصاً 📱\n\nيرجى كتابة رقم هاتفك:',
+                    suggestions: []
+                };
+            }
+            
+            // بعد 4-5 رسائل، السؤال عن رقم الهاتف أولاً (مرة واحدة فقط في الجلسة)
+            if (messageCount >= 4 && chatState === 'normal' && !hasShownExpertMessage && !expertMessageShown) {
+                hasShownExpertMessage = true;
+                expertMessageShown = true; // حماية إضافية
+                userMessage = message;
+                chatState = 'waiting_phone';
+                
+                return {
+                    text: 'يبدو إنك مهتم بخدماتنا! 😊\n\nلأقدم لك أفضل خدمة ومساعدة شخصية أكثر، سأوصلك مع أحد خبرائنا عبر الواتساب 💬\n\nسيكون معه تفاصيل محادثتنا وسيقدر يساعدك بشكل أفضل! 🎯\n\nيرجى كتابة رقم هاتفك للتواصل:',
+                    suggestions: []
+                };
+            }
+            
+            // رد افتراضي ذكي - إذا لم يتم عرضه من قبل، اعرضه وانتظر الرد
+            if (!hasReceivedDefaultResponse) {
+                hasReceivedDefaultResponse = true;
+                return {
+                    text: 'شكراً لسؤالك! 😊\n\nلأقدم لك أفضل اقتراح، أخبرني:\n• ما نوع فعاليتك؟ (معرض، مؤتمر، تدشين...)\n• كم عدد الحضور المتوقع؟\n• هل الموقع داخلي أم خارجي؟\n\nأو يمكنك اختيار من الأسئلة السريعة أعلاه! 👆',
+                    suggestions: ['تواصل مباشر', 'احجز استشارة مجانية']
+                };
+            } else {
+                // رد عام للرسائل غير المفهومة
+                const generalResponses = [
+                    'فهمت! 🤔 دعني أساعدك أكثر...\n\nهل يمكنك توضيح نوع الفعالية أو الخدمة اللي تحتاجها؟',
+                    'ممتاز! 👍 أقدر أساعدك بشكل أفضل لو عرفت:\n\n• نوع الفعالية\n• عدد الحضور المتوقع\n• الموقع والتاريخ',
+                    'أكيد يمكنني مساعدتك! 😊\n\nبس أحتاج أعرف تفاصيل أكثر عن احتياجاتك عشان أقدم لك أفضل حل 🎯'
+                ];
+                
+                const randomResponse = generalResponses[Math.floor(Math.random() * generalResponses.length)];
+                
+                return {
+                    text: randomResponse,
+                    suggestions: ['معرض تجاري', 'مؤتمر أو ندوة', 'تدشين منتج', 'أريد التواصل المباشر']
+                };
+            }
+        }
+
+        // دالة إرسال البيانات إلى Formspree
+        async function submitChatToFormspree(conversationHistory, phone) {
+            try {
+                const formData = new FormData();
+                
+                // تحويل تاريخ المحادثة إلى نص منسق
+                const conversationText = conversationHistory.map((entry, index) => {
+                    const time = new Date(entry.timestamp).toLocaleTimeString('ar-SA', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    return `${index + 1}. [${time}] ${entry.message}`;
+                }).join('\n');
+                
+                formData.append('conversation_history', conversationText);
+                formData.append('phone', phone);
+                formData.append('source', 'Smart Assistant Chat - عارف');
+                formData.append('total_messages', conversationHistory.length.toString());
+                formData.append('session_start', conversationHistory[0]?.timestamp || new Date().toISOString());
+                formData.append('session_end', new Date().toISOString());
+                
+                // إضافة ملخص سريع للمحادثة
+                const lastMessage = conversationHistory[conversationHistory.length - 1]?.message || '';
+                const summary = generateConversationSummary(conversationHistory);
+                formData.append('conversation_summary', summary);
+                formData.append('last_message', lastMessage);
+                
+                const response = await fetch('https://formspree.io/f/mdkpqkgy', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    console.log('تم إرسال تاريخ المحادثة بنجاح إلى Formspree');
+                } else {
+                    console.error('فشل في إرسال البيانات إلى Formspree');
+                }
+            } catch (error) {
+                console.error('خطأ في إرسال البيانات:', error);
+            }
+        }
+        
+        // دالة إنشاء ملخص للمحادثة
+        function generateConversationSummary(history) {
+            if (history.length === 0) return 'محادثة فارغة';
+            
+            const messages = history.map(h => h.message.toLowerCase());
+            let interests = [];
+            
+            // تحليل اهتمامات العميل
+            if (messages.some(m => m.includes('معرض'))) interests.push('معارض');
+            if (messages.some(m => m.includes('مؤتمر') || m.includes('ندوة'))) interests.push('مؤتمرات');
+            if (messages.some(m => m.includes('تدشين') || m.includes('افتتاح'))) interests.push('تدشين');
+            if (messages.some(m => m.includes('سعر') || m.includes('تكلفة'))) interests.push('استفسار أسعار');
+            if (messages.some(m => m.includes('شاشة') || m.includes('جهاز'))) interests.push('أجهزة');
+            if (messages.some(m => m.includes('تصوير'))) interests.push('تصوير احترافي');
+            if (messages.some(m => m.includes('براندنغ'))) interests.push('براندنغ');
+            
+            const interestsSummary = interests.length > 0 ? interests.join('، ') : 'استفسار عام';
+            
+            return `العميل أظهر اهتماماً بـ: ${interestsSummary} | عدد الرسائل: ${history.length} | المدة: ${Math.round((new Date(history[history.length - 1]?.timestamp) - new Date(history[0]?.timestamp)) / 60000)} دقيقة`;
+        }
+
+        // دالة اختيار رقم واتساب عشوائي
+        function getRandomWhatsAppContact() {
+            const contacts = [
+                { name: 'حمد', number: '96898567383' },
+                { name: 'عبدالعزيز', number: '96877220363' }
+            ];
+            
+            const randomIndex = Math.floor(Math.random() * contacts.length);
+            return contacts[randomIndex];
+        }
+
+        function handleSuggestion(suggestion) {
+            if (suggestion.includes('نعم، أريد معرفة المزيد عن Moment+')) {
+                addChatMessage('نعم، أريد معرفة المزيد عن Moment+', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('نعم، أريد معرفة المزيد عن Moment+');
+                    addChatMessage(response.text, 'assistant', response.showWhatsAppContact);
+                }, 500);
+            } else if (suggestion.includes('لا، فقط Event+')) {
+                addChatMessage('لا، فقط Event+', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('لا، فقط Event+');
+                    addChatMessage(response.text, 'assistant', response.showWhatsAppContact);
+                }, 500);
+            } else if (suggestion.includes('نعم، أريد معرفة المزيد')) {
+                addChatMessage('نعم، أريد معرفة المزيد', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('نعم، أريد معرفة المزيد');
+                    addChatMessage(response.text, 'assistant');
+                }, 500);
+            } else if (suggestion.includes('لا، شكراً')) {
+                addChatMessage('لا، شكراً', 'user');
+                setTimeout(() => {
+                    const response = analyzeMessage('لا، شكراً');
+                    addChatMessage(response.text, 'assistant');
+                    if (response.suggestions && response.suggestions.length > 0) {
+                        addSuggestionButtons(response.suggestions);
+                    }
+                }, 500);
+            } else if (suggestion.includes('انتقل لنظام الحجز')) {
+                scrollToSection('booking');
+                addChatMessage('تم توجيهك لنظام الحجز! 🚀', 'assistant');
+            } else if (suggestion.includes('شكراً لكم')) {
+                scrollToSection('booking');
+                addChatMessage('تم توجيهك لنظام الحجز! 🚀', 'assistant');
+            } else if (suggestion.includes('أضف الشاشة المتنقلة')) {
+                addDeviceToSelection('هوية تك – الشاشة المتنقلة الذكية', 45, 400);
+                addChatMessage('تم إضافة الشاشة المتنقلة الذكية لطلبك! ✅', 'assistant');
+            } else if (suggestion.includes('أضف التصوير')) {
+                const photographyCheckbox = document.querySelector('.addon-checkbox[data-addon="تصوير احترافي"]');
+                if (photographyCheckbox) {
+                    photographyCheckbox.checked = true;
+                    updateAddonSelection();
+                    addChatMessage('تم إضافة التصوير الاحترافي لطلبك! 📸', 'assistant');
+                }
+            } else if (suggestion.includes('أريد رؤية أعمالكم')) {
+                window.open('https://mnt.wsal.ai', '_blank');
+                addChatMessage('تم فتح بطاقتنا التعريفية! شاهد أعمالنا وإبداعاتنا 🎬✨', 'assistant');
+            } else if (suggestion.includes('تواصل للتوثيق الاحترافي')) {
+                const message = encodeURIComponent('مرحباً، أرغب في الاستفسار عن خدمات التوثيق الاحترافي والتصوير لفعاليتي 📸\n\nيرجى تزويدي بتفاصيل الخدمات والأسعار');
+                const whatsappUrl = `https://wa.me/96898567383?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+                addChatMessage('تم توجيهك للواتساب للاستفسار عن التوثيق الاحترافي! 💬', 'assistant');
+            } else if (suggestion.includes('أضف براندنغ')) {
+                const brandingCheckbox = document.querySelector('.addon-checkbox[data-addon="براندنغ الأجهزة"]');
+                if (brandingCheckbox) {
+                    brandingCheckbox.checked = true;
+                    updateAddonSelection();
+                    addChatMessage('تم إضافة براندنغ الأجهزة لطلبك! 🎨', 'assistant');
+                }
+            } else if (suggestion.includes('باقة Premium Complete')) {
+                selectPremiumCompletePackage();
+                addChatMessage('تم اختيار باقة Premium Complete! اختر شاشتين الآن 🎯', 'assistant');
+            } else if (suggestion.includes('تواصل مباشر')) {
+                scrollToSection('contact');
+                addChatMessage('تم توجيهك لقسم التواصل! 📞', 'assistant');
+            } else if (suggestion.includes('احجز استشارة')) {
+                const message = encodeURIComponent('مرحباً، أرغب في حجز استشارة مجانية مع فريق EventPlus لمناقشة احتياجات فعاليتي 🎯');
+                const whatsappUrl = `https://wa.me/96898567383?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+                addChatMessage('تم توجيهك للواتساب لحجز استشارة مجانية! 💬', 'assistant');
+            } else {
+                scrollToSection('booking');
+                addChatMessage('تم توجيهك لقسم الحجز! 🚀', 'assistant');
+            }
+        }
+
+        // Add event listeners for addon checkboxes and buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.addon-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateAddonSelection);
+            });
+            
+            // ربط أزرار الإرسال
+            document.getElementById('email-submit-btn').addEventListener('click', submitViaEmail);
+            document.getElementById('whatsapp-submit-btn').addEventListener('click', submitViaWhatsApp);
+        });
+
+        initializeApp();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99ad64b286c0d1e0',t:'MTc2MjUyNDQwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
