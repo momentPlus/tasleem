@@ -11,6 +11,9 @@
 
 
   <style>
+  /* إخفاء صف الخصم القديم؛ الخصومات تظهر داخل صندوق 🎉 خصومات إضافية */
+#discount-row { display: none !important; }
+
         body {
             box-sizing: border-box;
             background-color: #F5F5F7; /* خلفية رمادية فاتحة افتراضية */
@@ -186,25 +189,25 @@
        <!-- طبقة عازلة خفيفة لضمان وضوح الأسهم والنقاط -->
        <div class="absolute inset-0 bg-black/20 z-10"></div>
        <!-- الصورة كعنصر أساسي -->
-       <img src="https://i.ibb.co/7xSYjVQy/12.png" alt="شاشات عرض ذكية" class="w-full h-full object-cover">
+       <img src="12.png" alt="شاشات عرض ذكية" class="w-full h-full object-cover">
       </div>
       
       <!-- Slide 2: الأكشاك التفاعلية -->
       <div class="slide h-full w-full">
        <div class="absolute inset-0 bg-black/20 z-10"></div>
-       <img src="https://i.ibb.co/XZCXykh0/123.png" alt="كشك تفاعلي" class="w-full h-full object-cover">
+       <img src="123.png" alt="كشك تفاعلي" class="w-full h-full object-cover">
       </div>
       
       <!-- Slide 3: منصة التصوير 360° -->
       <div class="slide h-full w-full">
        <div class="absolute inset-0 bg-black/20 z-10"></div>
-       <img src="https://i.ibb.co/RpzBxSjY/1234.png" alt="منصة تصوير 360" class="w-full h-full object-cover">
+       <img src="1234.png" alt="منصة تصوير 360" class="w-full h-full object-cover">
       </div>
       
       <!-- Slide 4: حلول متكاملة -->
       <div class="slide h-full w-full">
        <div class="absolute inset-0 bg-black/20 z-10"></div>
-       <img src="https://i.ibb.co/LdyYcZdp/12345.png" alt="حلول متكاملة" class="w-full h-full object-cover">
+       <img src="12345.png" alt="حلول متكاملة" class="w-full h-full object-cover">
       </div>
       
       <!-- Navigation arrows --> 
@@ -772,7 +775,7 @@
      
      <!-- Sidebar Summary (معدل بتأثير زجاجي) -->
      <div class="lg:col-span-1">
-      <div class="bg-white/80 backdrop-blur-lg ring-1 ring-black/5 rounded-3xl shadow-2xl p-6 sticky top-24">
+      <div class="bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_10px_40px_rgba(0,0,0,0.15)] rounded-3xl p-6 sticky top-24">
        <h3 class="text-2xl font-bold mb-6 text-purple-900">ملخّص فوري 📋</h3>
        <div id="booking-summary" class="space-y-4 mb-6">
         <div class="text-center text-gray-400 py-8">
@@ -1581,12 +1584,20 @@
                 discounts.push({ name: 'خصم الصفحة التفاعلية (5%)', amount: interactivePageDiscount });
             }
             
-            const totalDiscount = multiDeviceDiscount + addonsDiscount + interactivePageDiscount;
-            const subtotalAfterDiscounts = subtotal - totalDiscount;
+let totalDiscount = multiDeviceDiscount + addonsDiscount + interactivePageDiscount;
+const subtotalAfterDiscounts = subtotal - totalDiscount;
 
-            // تطبيق خصم الكود (discountPercent)
-            const discountCodeAmount = subtotalAfterDiscounts * discountPercent;
-            const finalSubtotal = subtotalAfterDiscounts - discountCodeAmount; 
+// تطبيق خصم الكود (discountPercent)
+const discountCodeAmount = subtotalAfterDiscounts * discountPercent;
+
+// لو فيه كوبون مطبَّق، أضِفه ضمن قائمة الخصومات
+if (discountCodeAmount > 0) {
+  const code = (document.getElementById('discount-code')?.value || '').trim().toUpperCase() || 'CODE';
+  discounts.push({ name: `خصم كود (${code})`, amount: discountCodeAmount });
+  totalDiscount += discountCodeAmount; // << مهم: حتى يظهر ضمن إجمالي الخصومات
+}
+
+const finalSubtotal = subtotalAfterDiscounts - discountCodeAmount;
 
             const deliveryFee = calculateDeliveryFee(totalQuantity);
             
@@ -2980,9 +2991,37 @@
             // استدعاء تهيئة الـ SDK
             initializeApp().catch(console.error);
         });
+// Auto-check + Accordion
+document.addEventListener('DOMContentLoaded', () => {
+  const bindAutoCheck = (selector) => {
+    document.querySelectorAll(selector).forEach(inp => {
+      const deviceName = inp.getAttribute('data-device');
+      const apply = () => {
+        const val = parseInt(inp.value || '0', 10);
+        if (!deviceName) return;
+        const cb = document.querySelector(`.device-checkbox[data-device="${deviceName}"]`);
+        if (cb && val >= 1) cb.checked = true;
+        if (typeof updateBookingSummary === 'function') updateBookingSummary();
+      };
+      inp.addEventListener('input', apply);
+      inp.addEventListener('change', apply);
+    });
+  };
+  bindAutoCheck('.device-quantity');
+  bindAutoCheck('.device-days');
 
+  // Accordion: داخل #booking
+  const booking = document.getElementById('booking');
+  if (booking) {
+    const panels = booking.querySelectorAll('details');
+    panels.forEach((d, i) => d.open = (i === 0));
+    panels.forEach((d) => {
+      d.addEventListener('toggle', () => {
+        if (d.open) panels.forEach(x => { if (x !== d) x.open = false; });
+      });
+    });
+  }
+});
     </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99ad64b286c0d1e0',t:'MTc2MjUyNDQwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-
 </html>
-
